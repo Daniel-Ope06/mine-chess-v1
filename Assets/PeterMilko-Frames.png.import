@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/Board_Classic_3_JPEG.jpg-18406dae747ff40447c2e1f2f749f54f.stex"
+path="res://.import/PeterMilko-Frames.png-7f2f04ed38021d55e0c9c995fa9aae9a.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Boards/Board_Classic_3_JPEG.jpg"
-dest_files=[ "res://.import/Board_Classic_3_JPEG.jpg-18406dae747ff40447c2e1f2f749f54f.stex" ]
+source_file="res://Assets/PeterMilko-Frames.png"
+dest_files=[ "res://.import/PeterMilko-Frames.png-7f2f04ed38021d55e0c9c995fa9aae9a.stex" ]
 
 [params]
 
