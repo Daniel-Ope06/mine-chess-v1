@@ -49,6 +49,11 @@ var selected_type; var target_type
 var controlling = false; var movement_occured = false
 var white_turn = true
 
+# Gold system
+var black_gold = 0
+var white_gold = 0
+var chess_notation = {'A':0, 'B':1, 'C':2, 'D':3, 'E':4, 'F':5, 'G':6, 'H':7}
+var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING':0}
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
@@ -392,6 +397,51 @@ func promote_to(promotion, chess_piece,  pos, sprite):
 	piece_object[pos.x][pos.y] = piece
 	piece_type[pos.x][pos.y] = promotion
 	piece_object[pos.x][pos.y].switch_texture(piece_textures[sprite])
+
+func in_check(color, pos):
+	var path_up = check_PathUp(pos)
+	var path_down = check_PathDown(pos)
+	var path_right = check_PathRight(pos)
+	var path_left = check_PathLeft(pos)
+	
+	if ('ROOK' in path_up):
+		pass
+
+
+
+# Check Paths
+func check_PathUp(pos):
+	var path_up = [null]
+	var i = 1
+	while ((path_up[i-1] == null) or (path_up[i-1] == 'MINE')) and (pos.y + i <7):
+		path_up.append(piece_type[pos.x][pos.y + i])
+		i = i + 1
+	return path_up
+
+func check_PathDown(pos):
+	var path_down = [null]
+	var i = 1
+	while ((path_down[i-1] == null) or (path_down[i-1] == 'MINE')) and (pos.y - i > 0):
+		path_down.append(piece_type[pos.x][pos.y - i])
+		i = i + 1
+	return path_down
+	
+func check_PathRight(pos):
+	var path_right = [null]
+	var i = 1
+	while ((path_right[i-1] == null) or (path_right[i-1] == 'MINE')) and (pos.x + i <7):
+		path_right.append(piece_type[pos.x + i][pos.y])
+		i = i + 1
+	return path_right
+
+func check_PathLeft(pos):
+	var path_left = [null]
+	var i = 1
+	while ((path_left[i-1] == null) or (path_left[i-1] == 'MINE')) and (pos.x - i > 0):
+		path_left.append(piece_type[pos.x - i][pos.y])
+		i = i + 1
+	return path_left
+
 
 
 # Buttons
