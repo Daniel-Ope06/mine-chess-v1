@@ -1,7 +1,10 @@
 extends Node2D
 
-var cursor = load("res://Assets/item_2_flip.png")
+onready var mouse = $GoldSysten/White/MouseCursor
+const cursor = preload("res://Assets/Others/item_2_flip.png")
+const mine_cursor = preload("res://Assets/Others/item_14.png")
 const tile = preload("res://Chess Pieces/HighlightTile.tscn")
+const mine_tile = preload("res://Chess Pieces/HighlightMine.tscn")
 
 const chess_pieces = [
 	preload("res://Chess Pieces/Black/BlackRook.tscn"),
@@ -34,6 +37,7 @@ const piece_textures = [
 var piece_object = []
 var piece_type = []
 var tileset = []
+var mineset = []
 
 # Each tile is 32 by 32
 var x_start = -112
@@ -57,15 +61,20 @@ var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING'
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-	Input.set_custom_mouse_cursor(cursor, Input.CURSOR_ARROW, Vector2())
 	
+	# Chess Pieces
 	piece_object = build_2D_array()
 	piece_type = build_2D_array()
-	tileset = build_2D_array()
 	spawn_black_pieces()
 	spawn_white_pieces()
-	build_tileset()
-	hide_tileset()
+	
+	# Tile Sets
+	tileset = build_2D_array()
+	mineset = build_2D_array()
+	build_tileset(tile, tileset)
+	build_tileset(mine_tile, mineset)
+	hide_tileset(tileset)
+	hide_tileset(mineset)
 	
 	# Hide these
 	$PawnPromotion.hide()
@@ -79,6 +88,8 @@ func _ready() -> void:
 func _process(_delta) -> void:
 	show_path()
 	choose_path()
+	set_mine()
+	place_mine()
 
 
 # Grid System
@@ -145,18 +156,18 @@ func spawn_white_pieces():
 
 
 # Build tiles
-func build_tileset():
+func build_tileset(type, set):
 	for i in range(8):
 		for j in range(8):
-			var square = tile.instance()
+			var square = type.instance()
 			add_child(square)
 			square.position = grid_to_pixel(Vector2(i,j))
-			tileset[i][j] = square
+			set[i][j] = square
 
-func hide_tileset():
+func hide_tileset(set):
 	for i in range(8):
 		for j in range(8):
-			tileset[i][j].hide()
+			set[i][j].hide()
 
 
 # Chess piece paths
@@ -193,10 +204,10 @@ func choose_path():
 			
 		if movement_occured:
 			white_turn = not(white_turn)
-		hide_tileset()
+		hide_tileset(tileset)
 
 func piece_path(selected_type, selected_piece, pos):
-	hide_tileset()
+	hide_tileset(tileset)
 	
 	if selected_piece != null:
 		pawn_path(selected_type, pos)
@@ -445,6 +456,7 @@ func check_PathLeft(pos):
 
 
 # Buttons
+## Promotionn Buttons
 func _on_W_QueenBtn_pressed() -> void:
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
@@ -508,3 +520,27 @@ func _on_B_BishopBtn_pressed() -> void:
 	target.x = last_row.find('B_PAWN'); target.y = 0
 	promote_to('B_BISHOP', 2,  target, 2)
 	$PawnPromotion.hide()
+
+
+## Mine & Gold Buttons
+func set_mine():
+	if Input.is_action_just_pressed("ui_click") and (mouse.texture == mine_cursor):
+		var mine_click = get_global_mouse_position()
+		var mine_pos = pixel_to_grid(mine_click)
+		
+		if inside_grid(mine_pos) and (piece_type[mine_pos.x][mine_pos.y] == null):
+			hide_tileset(mineset)
+			mineset[mine_pos.x][mine_pos.y].show()
+
+func place_mine():
+	if Input.is_action_just_pressed("ui_right_click"):
+		var mine_click = get_global_mouse_position()
+		var mine_pos = pixel_to_grid(mine_click)
+		
+		if mineset[mine_pos.x][mine_pos.y].visible == true:
+			mouse.switch_texture(cursor)
+			hide_tileset(mineset)
+			piece_type[mine_pos.x][mine_pos.y] = 'MINE'
+
+func _on_WhiteMineBtn_pressed() -> void:
+	mouse.switch_texture(mine_cursor)
