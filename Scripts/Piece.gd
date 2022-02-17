@@ -15,3 +15,5 @@ func animate(target):
 func switch_texture(mat):
 	sprite.set_texture(mat)
 
+func show_shield():
+	sprite.modulate = Color(1,1,0.4,1)

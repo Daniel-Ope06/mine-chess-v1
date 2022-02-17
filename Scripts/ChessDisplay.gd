@@ -1,10 +1,16 @@
 extends Node2D
 
-onready var mouse = $GoldSysten/White/MouseCursor
+# Mouse cursors
+onready var mouse = $Sprites/MouseCursor
 const cursor = preload("res://Assets/Others/item_2_flip.png")
 const mine_cursor = preload("res://Assets/Others/item_14.png")
+const shield_cursor = preload("res://Assets/Others/shield_gold.png")
+var mouse_pos
+
+# Tiles
 const tile = preload("res://Chess Pieces/HighlightTile.tscn")
 const mine_tile = preload("res://Chess Pieces/HighlightMine.tscn")
+const shield_tile = preload("res://Chess Pieces/HighlightShield.tscn")
 
 const chess_pieces = [
 	preload("res://Chess Pieces/Black/BlackRook.tscn"),
@@ -38,6 +44,7 @@ var piece_object = []
 var piece_type = []
 var tileset = []
 var mineset = []
+var shieldset = []
 
 # Each tile is 32 by 32
 var x_start = -112
@@ -51,7 +58,9 @@ var pos; var target
 var selected_piece; var target_piece
 var selected_type; var target_type
 var controlling = false; var movement_occured = false
+var mine_control = false
 var white_turn = true
+var pop_up_books = false
 
 # Gold system
 var black_gold = 0
@@ -61,6 +70,7 @@ var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING'
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7,-7))
 	
 	# Chess Pieces
 	piece_object = build_2D_array()
@@ -71,13 +81,17 @@ func _ready() -> void:
 	# Tile Sets
 	tileset = build_2D_array()
 	mineset = build_2D_array()
+	shieldset = build_2D_array()
 	build_tileset(tile, tileset)
 	build_tileset(mine_tile, mineset)
+	build_tileset(shield_tile, shieldset)
 	hide_tileset(tileset)
 	hide_tileset(mineset)
+	hide_tileset(shieldset)
 	
 	# Hide these
 	$PawnPromotion.hide()
+	$GoldSysten/PopUpBook.hide()
 	
 	# Test pieces
 	spawn_piece(9, 'W_PAWN', Vector2(6,5))
@@ -86,10 +100,13 @@ func _ready() -> void:
 	spawn_piece(11, 'W_QUEEN', Vector2(3,3))
 
 func _process(_delta) -> void:
-	show_path()
-	choose_path()
-	set_mine()
-	place_mine()
+	mouse_pos = get_global_mouse_position()
+	
+	#if inside_grid(pixel_to_grid(mouse_pos)):
+	show_path(); choose_path()
+	place_mine();set_mine(); gold_popup()
+	place_shield(); set_shield()
+	disable_btn()
 
 
 # Grid System
@@ -112,8 +129,8 @@ func pixel_to_grid(pixel):
 	return Vector2(new_x, new_y)
 
 func inside_grid(pos):
-	if pos.x >= 0 and pos.x < 8:
-		if pos.y >= 0 and pos.y < 8:
+	if pos.x >= 0 and pos.x <= 7:
+		if pos.y >= 0 and pos.y <= 7:
 			return true
 	return false
 
@@ -173,7 +190,7 @@ func hide_tileset(set):
 # Chess piece paths
 func show_path():
 	movement_occured = false
-	if Input.is_action_just_pressed("ui_click"):
+	if Input.is_action_just_pressed("ui_click") and (mouse.texture == cursor):
 		first_click = get_global_mouse_position()
 		pos = pixel_to_grid(first_click)
 		
@@ -419,7 +436,6 @@ func in_check(color, pos):
 		pass
 
 
-
 # Check Paths
 func check_PathUp(pos):
 	var path_up = [null]
@@ -453,6 +469,71 @@ func check_PathLeft(pos):
 		i = i + 1
 	return path_left
 
+
+# Mine & Gold System
+func gold_popup():	
+	if white_turn == true and pop_up_books == true:
+		$GoldSysten/PopUpBook.show()
+	
+	if white_turn == false  and pop_up_books == true:
+		$GoldSysten/PopUpBook.show()
+		
+	if pop_up_books == false:
+		$GoldSysten/PopUpBook.hide()
+
+func place_mine():
+	if Input.is_action_just_pressed("ui_click") and (mouse.texture == mine_cursor):
+		var mine_click = get_global_mouse_position()
+		var mine_pos = pixel_to_grid(mine_click)
+		
+		if inside_grid(mine_pos) and (piece_type[mine_pos.x][mine_pos.y] == null):
+			hide_tileset(mineset)
+			mineset[mine_pos.x][mine_pos.y].show()
+
+func set_mine():
+	if Input.is_action_just_pressed("ui_right_click") and (mouse.texture == mine_cursor):
+		var mine_click = get_global_mouse_position()
+		var mine_pos = pixel_to_grid(mine_click)
+		
+		if inside_grid(mine_pos):
+			if mineset[mine_pos.x][mine_pos.y].visible == true:
+				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
+				hide_tileset(mineset)
+				piece_type[mine_pos.x][mine_pos.y] = 'MINE'
+
+func place_shield():
+	if  Input.is_action_just_pressed("ui_click") and (mouse.texture == shield_cursor):
+		var mine_click = get_global_mouse_position()
+		var mine_pos = pixel_to_grid(mine_click)
+		
+		if inside_grid(mine_pos) and (piece_object[mine_pos.x][mine_pos.y] != null) :
+			hide_tileset(shieldset)
+			shieldset[mine_pos.x][mine_pos.y].show()
+
+func set_shield():
+	if Input.is_action_just_pressed("ui_right_click") and (mouse.texture == shield_cursor):
+		var mine_click = get_global_mouse_position()
+		var mine_pos = pixel_to_grid(mine_click)
+		
+		if inside_grid(mine_pos):
+			if shieldset[mine_pos.x][mine_pos.y].visible == true:
+				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
+				hide_tileset(shieldset)
+				piece_type[mine_pos.x][mine_pos.y] += '_SHIELD'
+				piece_object[mine_pos.x][mine_pos.y].show_shield()
+
+func disable_btn():
+	if white_turn == true:
+		$GoldSysten/WhiteBookBtn.disabled = false
+		$GoldSysten/BlackBookBtn.disabled = true
+		$GoldSysten/WhiteBookBtn.modulate = Color(1, 1, 1, 1)
+		$GoldSysten/BlackBookBtn.modulate = Color(0.5, 0.5, 0.5, 1)
+	
+	if white_turn == false:
+		$GoldSysten/WhiteBookBtn.disabled = true
+		$GoldSysten/BlackBookBtn.disabled = false
+		$GoldSysten/WhiteBookBtn.modulate = Color(0.5, 0.5, 0.5, 1)
+		$GoldSysten/BlackBookBtn.modulate = Color(1, 1, 1, 1)
 
 
 # Buttons
@@ -523,24 +604,15 @@ func _on_B_BishopBtn_pressed() -> void:
 
 
 ## Mine & Gold Buttons
-func set_mine():
-	if Input.is_action_just_pressed("ui_click") and (mouse.texture == mine_cursor):
-		var mine_click = get_global_mouse_position()
-		var mine_pos = pixel_to_grid(mine_click)
-		
-		if inside_grid(mine_pos) and (piece_type[mine_pos.x][mine_pos.y] == null):
-			hide_tileset(mineset)
-			mineset[mine_pos.x][mine_pos.y].show()
+func _on_BlackBookBtn_pressed() -> void:
+	pop_up_books = not(pop_up_books)
 
-func place_mine():
-	if Input.is_action_just_pressed("ui_right_click"):
-		var mine_click = get_global_mouse_position()
-		var mine_pos = pixel_to_grid(mine_click)
-		
-		if mineset[mine_pos.x][mine_pos.y].visible == true:
-			mouse.switch_texture(cursor)
-			hide_tileset(mineset)
-			piece_type[mine_pos.x][mine_pos.y] = 'MINE'
+func _on_WhiteBookBtn_pressed() -> void:
+	pop_up_books = not(pop_up_books)
 
-func _on_WhiteMineBtn_pressed() -> void:
-	mouse.switch_texture(mine_cursor)
+func _on_MineBtn_pressed() -> void:
+	mouse.switch_cursor(mine_cursor, Vector2(1,1), Vector2(-16,-16))
+
+func _on_ShieldBtn_pressed() -> void:
+	mouse.switch_cursor(shield_cursor, Vector2(0.6,0.6), Vector2(-16, -16))
+
