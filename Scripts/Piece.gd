@@ -13,7 +13,11 @@ func animate(target):
 	move_tween.start()
 
 func switch_texture(mat):
+	$AnimationPlayer.play("Promotion")
+	sprite.hide()
+	yield(get_tree().create_timer(0.63), "timeout")
 	sprite.set_texture(mat)
+	sprite.show()
 
 func show_shield():
 	sprite.modulate = Color(1,1,0.4,1)
