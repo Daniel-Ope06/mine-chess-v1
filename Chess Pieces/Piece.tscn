@@ -1,6 +1,39 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scripts/Piece.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Others/Explosion 2 SpriteSheet.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Others/Explosion SpriteSheet.png" type="Texture" id=3]
+
+[sub_resource type="Animation" id=2]
+resource_name = "Explode"
+tracks/0/type = "value"
+tracks/0/path = NodePath("Explode:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.06, 0.12, 0.18, 0.24, 0.3, 0.36, 0.42, 0.48, 0.54, 0.6, 0.66, 0.72, 0.78, 0.84, 0.9 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]
+}
+
+[sub_resource type="Animation" id=1]
+resource_name = "Promotion"
+length = 1.2
+tracks/0/type = "value"
+tracks/0/path = NodePath("Promotion:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.06, 0.12, 0.18, 0.24, 0.3, 0.36, 0.42, 0.48, 0.54, 0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.14 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 5, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 5 ]
+}
 
 [node name="Piece" type="Node2D"]
 script = ExtResource( 1 )
@@ -8,3 +41,21 @@ script = ExtResource( 1 )
 [node name="Sprite" type="Sprite" parent="."]
 
 [node name="Tween" type="Tween" parent="."]
+
+[node name="Promotion" type="Sprite" parent="."]
+scale = Vector2( 1.1, 1.1 )
+texture = ExtResource( 2 )
+offset = Vector2( 0, -6 )
+hframes = 18
+frame = 5
+
+[node name="Explode" type="Sprite" parent="."]
+scale = Vector2( 1.5, 1.5 )
+texture = ExtResource( 3 )
+offset = Vector2( 0, -4 )
+hframes = 4
+vframes = 4
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/Explode = SubResource( 2 )
+anims/Promotion = SubResource( 1 )
