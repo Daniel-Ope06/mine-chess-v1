@@ -98,6 +98,7 @@ func _ready() -> void:
 	spawn_piece(3, 'B_PAWN', Vector2(5,2))
 	spawn_piece(2, 'B_BISHOP', Vector2(5,3))
 	spawn_piece(11, 'W_QUEEN', Vector2(3,3))
+	spawn_piece(0, 'B_ROOK', Vector2(4,3))
 
 func _process(_delta) -> void:
 	mouse_pos = get_global_mouse_position()
@@ -107,6 +108,7 @@ func _process(_delta) -> void:
 	place_mine();set_mine(); gold_popup()
 	place_shield(); set_shield()
 	disable_btn()
+	display_CheckAndCheckmate()
 
 
 # Grid System
@@ -426,48 +428,76 @@ func promote_to(promotion, chess_piece,  pos, sprite):
 	piece_type[pos.x][pos.y] = promotion
 	piece_object[pos.x][pos.y].switch_texture(piece_textures[sprite])
 
-func in_check(color, pos):
-	var path_up = check_PathUp(pos)
-	var path_down = check_PathDown(pos)
-	var path_right = check_PathRight(pos)
-	var path_left = check_PathLeft(pos)
+func in_check(pos):
+	var path_up = check_path(pos, Vector2(0, 1)); var path_down = check_path(pos, Vector2(0, -1))
+	var path_right = check_path(pos, Vector2(1, 0)); var path_left = check_path(pos, Vector2(-1, 0))
 	
-	if ('ROOK' in path_up):
-		pass
-
-
-# Check Paths
-func check_PathUp(pos):
-	var path_up = [null]
-	var i = 1
-	while ((path_up[i-1] == null) or (path_up[i-1] == 'MINE')) and (pos.y + i <7):
-		path_up.append(piece_type[pos.x][pos.y + i])
-		i = i + 1
-	return path_up
-
-func check_PathDown(pos):
-	var path_down = [null]
-	var i = 1
-	while ((path_down[i-1] == null) or (path_down[i-1] == 'MINE')) and (pos.y - i > 0):
-		path_down.append(piece_type[pos.x][pos.y - i])
-		i = i + 1
-	return path_down
+	var path_up_right = check_path(pos, Vector2(1, 1)); var path_up_left = check_path(pos, Vector2(-1, 1))
+	var path_down_right = check_path(pos, Vector2(1, -1)); var path_down_left = check_path(pos, Vector2(-1, -1))
 	
-func check_PathRight(pos):
-	var path_right = [null]
-	var i = 1
-	while ((path_right[i-1] == null) or (path_right[i-1] == 'MINE')) and (pos.x + i <7):
-		path_right.append(piece_type[pos.x + i][pos.y])
-		i = i + 1
-	return path_right
+	var cross_path = path_up + path_down + path_right + path_left
+	var diagonal_path = path_up_right + path_up_left + path_down_right + path_down_left
+	
+	var T
+	if white_turn == true:
+		T = "B_"
+	if white_turn == false:
+		T = "W_"
+	
+	if (T+'ROOK' in cross_path) or (T+'QUEEN' in cross_path):
+		return true
+	
+	if (T+'BISHOP' in diagonal_path) or (T+'QUEEN' in diagonal_path):
+		return true
 
-func check_PathLeft(pos):
-	var path_left = [null]
+
+func display_CheckAndCheckmate():
+	var king_pos
+	if white_turn == true:
+		king_pos = find_index('W_KING')
+	if white_turn == false:
+		king_pos = find_index('B_KING')
+	
+	if (king_pos != null):
+		if in_check(king_pos):
+			mineset[king_pos.x][king_pos.y].show()
+		if movement_occured:
+			hide_tileset(mineset)
+
+func find_index(piece):
+	for i in range(piece_type.size()):
+		for j in range(piece_type.size()):
+			if piece_type[i][j] == piece:
+				return(Vector2(i,j))
+
+func check_path(pos : Vector2, direction : Vector2):
+	var path = [null]
 	var i = 1
-	while ((path_left[i-1] == null) or (path_left[i-1] == 'MINE')) and (pos.x - i > 0):
-		path_left.append(piece_type[pos.x - i][pos.y])
-		i = i + 1
-	return path_left
+	var d = direction
+	if inside_grid(pos + d):
+		while ((path[i-1] == null) or (path[i-1] == 'MINE')) and inside_grid(pos + d):
+			path.append(piece_type[pos.x + d.x][pos.y + d.y])
+			i = i + 1
+			
+			if d.x == 0 and d.y > 0:
+				d = d + Vector2(0, 1)
+			if d.x == 0  and d.y < 0:
+				d = d + Vector2(0, -1)
+			
+			if d.x > 0  and d.y == 0:
+				d = d + Vector2(1, 0)
+			if d.x > 0  and d.y > 0:
+				d = d + Vector2(1, 1)
+			if d.x > 0  and d.y < 0:
+				d = d + Vector2(1, -1)
+				
+			if d.x < 0  and d.y == 0:
+				d = d + Vector2(-1, 0)
+			if d.x < 0  and d.y > 0:
+				d = d + Vector2(-1, 1)
+			if d.x < 0  and d.y < 0:
+				d = d + Vector2(-1, -1)
+	return path
 
 
 # Mine & Gold System
@@ -543,7 +573,7 @@ func _on_W_QueenBtn_pressed() -> void:
 	for i in range(8):
 		last_row.append(piece_type[i][7])
 	target.x = last_row.find('W_PAWN'); target.y = 7
-	promote_to('W_QUEEN', 6,  target, 7)
+	promote_to('W_QUEEN', 11,  target, 7)
 	$PawnPromotion.hide()
 
 func _on_W_KnightBtn_pressed() -> void:
