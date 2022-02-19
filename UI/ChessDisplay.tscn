@@ -12,9 +12,9 @@
 [ext_resource path="res://Assets/Pieces/White/white_queen.png" type="Texture" id=10]
 [ext_resource path="res://Assets/Pieces/Black/black_queen.png" type="Texture" id=11]
 [ext_resource path="res://Assets/Pieces/Black/black_rook.png" type="Texture" id=12]
+[ext_resource path="res://Chess Pieces/Numbers.tscn" type="PackedScene" id=13]
 [ext_resource path="res://Assets/Others/item_14.png" type="Texture" id=14]
 [ext_resource path="res://Assets/Others/shield_gold.png" type="Texture" id=15]
-[ext_resource path="res://Assets/Others/frame02.png" type="Texture" id=16]
 [ext_resource path="res://Assets/Others/book_blue.png" type="Texture" id=17]
 [ext_resource path="res://Assets/Others/book_brown.png" type="Texture" id=18]
 [ext_resource path="res://Assets/Others/left_btn.png" type="Texture" id=19]
@@ -168,21 +168,21 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -81.5
-margin_top = -24.0
-margin_right = 81.5
-margin_bottom = 24.0
-texture = ExtResource( 16 )
+margin_left = -192.0
+margin_top = -38.0
+margin_right = -134.0
+margin_bottom = 44.0
+texture = ExtResource( 2 )
 expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="ShieldBtn" type="TextureButton" parent="GoldSysten/PopUpBook"]
-margin_left = 29.0
-margin_top = 8.0
-margin_right = 61.0
-margin_bottom = 40.0
+margin_left = 20.0
+margin_top = 10.0
+margin_right = 38.0
+margin_bottom = 28.0
 texture_normal = ExtResource( 15 )
 expand = true
 __meta__ = {
@@ -190,10 +190,10 @@ __meta__ = {
 }
 
 [node name="MineBtn" type="TextureButton" parent="GoldSysten/PopUpBook"]
-margin_left = 99.0
-margin_top = 2.0
-margin_right = 143.0
-margin_bottom = 46.0
+margin_left = 14.0
+margin_top = 40.0
+margin_right = 44.0
+margin_bottom = 70.0
 texture_normal = ExtResource( 14 )
 expand = true
 __meta__ = {
@@ -204,10 +204,9 @@ __meta__ = {
 position = Vector2( 69, 24 )
 
 [node name="LeftShieldBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = -60.0
-margin_top = -8.0
-margin_right = -41.0
-margin_bottom = 10.0
+margin_left = -63.0
+margin_top = -12.0
+margin_right = -51.0
 texture_normal = ExtResource( 19 )
 expand = true
 __meta__ = {
@@ -215,10 +214,9 @@ __meta__ = {
 }
 
 [node name="RightShieldBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = -8.0
-margin_top = -8.0
-margin_right = 11.0
-margin_bottom = 10.0
+margin_left = -31.0
+margin_top = -12.0
+margin_right = -19.0
 texture_normal = ExtResource( 20 )
 expand = true
 __meta__ = {
@@ -226,10 +224,10 @@ __meta__ = {
 }
 
 [node name="LeftMineBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = 16.0
-margin_top = -8.0
-margin_right = 35.0
-margin_bottom = 10.0
+margin_left = -63.0
+margin_top = 24.0
+margin_right = -50.0
+margin_bottom = 36.0
 texture_normal = ExtResource( 19 )
 expand = true
 __meta__ = {
@@ -237,15 +235,35 @@ __meta__ = {
 }
 
 [node name="RightMineBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = 68.0
-margin_top = -8.0
-margin_right = 87.0
-margin_bottom = 10.0
+margin_left = -31.0
+margin_top = 24.0
+margin_right = -18.0
+margin_bottom = 36.0
 texture_normal = ExtResource( 20 )
 expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Numbers" type="TextureRect" parent="GoldSysten/PopUpBook"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="White" type="Node2D" parent="GoldSysten/PopUpBook/Numbers"]
+
+[node name="Numbers" parent="GoldSysten/PopUpBook/Numbers/White" instance=ExtResource( 13 )]
+position = Vector2( -11, -13 )
+
+[node name="Numbers2" parent="GoldSysten/PopUpBook/Numbers/White" instance=ExtResource( 13 )]
+position = Vector2( -11, 23 )
+
+[node name="Black" type="Node2D" parent="GoldSysten/PopUpBook/Numbers"]
+visible = false
 
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_QueenBtn" to="." method="_on_W_QueenBtn_pressed"]
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_KnightBtn" to="." method="_on_W_KnightBtn_pressed"]
