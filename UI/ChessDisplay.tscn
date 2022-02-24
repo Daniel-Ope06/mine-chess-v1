@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://Assets/Boards/Board_Xtra_6.png" type="Texture" id=1]
 [ext_resource path="res://Assets/Others/frame01.png" type="Texture" id=2]
@@ -12,13 +12,19 @@
 [ext_resource path="res://Assets/Pieces/White/white_queen.png" type="Texture" id=10]
 [ext_resource path="res://Assets/Pieces/Black/black_queen.png" type="Texture" id=11]
 [ext_resource path="res://Assets/Pieces/Black/black_rook.png" type="Texture" id=12]
-[ext_resource path="res://Chess Pieces/Numbers.tscn" type="PackedScene" id=13]
+[ext_resource path="res://Assets/trajanusbricks/TrajanusBriX-Invers.ttf" type="DynamicFontData" id=13]
 [ext_resource path="res://Assets/Others/item_14.png" type="Texture" id=14]
 [ext_resource path="res://Assets/Others/shield_gold.png" type="Texture" id=15]
+[ext_resource path="res://Chess Pieces/Numbers.tscn" type="PackedScene" id=16]
 [ext_resource path="res://Assets/Others/book_blue.png" type="Texture" id=17]
 [ext_resource path="res://Assets/Others/book_brown.png" type="Texture" id=18]
 [ext_resource path="res://Assets/Others/left_btn.png" type="Texture" id=19]
 [ext_resource path="res://Assets/Others/right_btn.png" type="Texture" id=20]
+
+[sub_resource type="DynamicFont" id=1]
+size = 12
+extra_spacing_char = 2
+font_data = ExtResource( 13 )
 
 [node name="ChessDisplay" type="Node2D"]
 script = ExtResource( 4 )
@@ -142,9 +148,9 @@ __meta__ = {
 z_index = 100
 
 [node name="BlackBookBtn" type="TextureButton" parent="GoldSysten"]
-margin_left = -176.0
+margin_left = -180.0
 margin_top = -128.0
-margin_right = -136.0
+margin_right = -140.0
 margin_bottom = -88.0
 texture_normal = ExtResource( 17 )
 expand = true
@@ -153,12 +159,36 @@ __meta__ = {
 }
 
 [node name="WhiteBookBtn" type="TextureButton" parent="GoldSysten"]
-margin_left = -176.0
+margin_left = -178.0
 margin_top = 88.0
-margin_right = -136.0
+margin_right = -138.0
 margin_bottom = 128.0
 texture_normal = ExtResource( 18 )
 expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WhiteGold" type="Label" parent="GoldSysten"]
+margin_left = -164.0
+margin_top = 102.0
+margin_right = -146.0
+margin_bottom = 120.0
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 1 )
+text = "00"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BlackGold" type="Label" parent="GoldSysten"]
+margin_left = -166.0
+margin_top = -114.0
+margin_right = -148.0
+margin_bottom = -97.0
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 1 )
+text = "00"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -168,10 +198,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -192.0
-margin_top = -38.0
+margin_left = -196.0
+margin_top = -44.0
 margin_right = -134.0
-margin_bottom = 44.0
+margin_bottom = 46.0
 texture = ExtResource( 2 )
 expand = true
 __meta__ = {
@@ -179,10 +209,10 @@ __meta__ = {
 }
 
 [node name="ShieldBtn" type="TextureButton" parent="GoldSysten/PopUpBook"]
-margin_left = 20.0
-margin_top = 10.0
-margin_right = 38.0
-margin_bottom = 28.0
+margin_left = 22.0
+margin_top = 12.0
+margin_right = 40.0
+margin_bottom = 30.0
 texture_normal = ExtResource( 15 )
 expand = true
 __meta__ = {
@@ -190,10 +220,10 @@ __meta__ = {
 }
 
 [node name="MineBtn" type="TextureButton" parent="GoldSysten/PopUpBook"]
-margin_left = 14.0
-margin_top = 40.0
-margin_right = 44.0
-margin_bottom = 70.0
+margin_left = 16.0
+margin_top = 38.0
+margin_right = 46.0
+margin_bottom = 68.0
 texture_normal = ExtResource( 14 )
 expand = true
 __meta__ = {
@@ -204,9 +234,10 @@ __meta__ = {
 position = Vector2( 69, 24 )
 
 [node name="LeftShieldBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = -63.0
-margin_top = -12.0
-margin_right = -51.0
+margin_left = -61.0
+margin_top = -10.0
+margin_right = -49.0
+margin_bottom = 2.0
 texture_normal = ExtResource( 19 )
 expand = true
 __meta__ = {
@@ -214,9 +245,10 @@ __meta__ = {
 }
 
 [node name="RightShieldBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = -31.0
-margin_top = -12.0
-margin_right = -19.0
+margin_left = -29.0
+margin_top = -10.0
+margin_right = -17.0
+margin_bottom = 2.0
 texture_normal = ExtResource( 20 )
 expand = true
 __meta__ = {
@@ -224,10 +256,10 @@ __meta__ = {
 }
 
 [node name="LeftMineBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = -63.0
-margin_top = 24.0
-margin_right = -50.0
-margin_bottom = 36.0
+margin_left = -61.0
+margin_top = 22.0
+margin_right = -48.0
+margin_bottom = 34.0
 texture_normal = ExtResource( 19 )
 expand = true
 __meta__ = {
@@ -235,35 +267,25 @@ __meta__ = {
 }
 
 [node name="RightMineBtn" type="TextureButton" parent="GoldSysten/PopUpBook/Arrows"]
-margin_left = -31.0
-margin_top = 24.0
-margin_right = -18.0
-margin_bottom = 36.0
+margin_left = -29.0
+margin_top = 22.0
+margin_right = -16.0
+margin_bottom = 34.0
 texture_normal = ExtResource( 20 )
 expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Numbers" type="TextureRect" parent="GoldSysten/PopUpBook"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="Numbers" type="Node2D" parent="GoldSysten/PopUpBook"]
+position = Vector2( 192, 38 )
 
-[node name="White" type="Node2D" parent="GoldSysten/PopUpBook/Numbers"]
+[node name="MineNumber" parent="GoldSysten/PopUpBook/Numbers" instance=ExtResource( 16 )]
+position = Vector2( -174, 30 )
+frame = 8
 
-[node name="Numbers" parent="GoldSysten/PopUpBook/Numbers/White" instance=ExtResource( 13 )]
-position = Vector2( -11, -13 )
-
-[node name="Numbers2" parent="GoldSysten/PopUpBook/Numbers/White" instance=ExtResource( 13 )]
-position = Vector2( -11, 23 )
-
-[node name="Black" type="Node2D" parent="GoldSysten/PopUpBook/Numbers"]
-visible = false
+[node name="ShieldNumber" parent="GoldSysten/PopUpBook/Numbers" instance=ExtResource( 16 )]
+position = Vector2( -172, -4 )
 
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_QueenBtn" to="." method="_on_W_QueenBtn_pressed"]
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_KnightBtn" to="." method="_on_W_KnightBtn_pressed"]
@@ -277,3 +299,7 @@ visible = false
 [connection signal="pressed" from="GoldSysten/WhiteBookBtn" to="." method="_on_WhiteBookBtn_pressed"]
 [connection signal="pressed" from="GoldSysten/PopUpBook/ShieldBtn" to="." method="_on_ShieldBtn_pressed"]
 [connection signal="pressed" from="GoldSysten/PopUpBook/MineBtn" to="." method="_on_MineBtn_pressed"]
+[connection signal="pressed" from="GoldSysten/PopUpBook/Arrows/LeftShieldBtn" to="." method="_on_LeftShieldBtn_pressed"]
+[connection signal="pressed" from="GoldSysten/PopUpBook/Arrows/RightShieldBtn" to="." method="_on_RightShieldBtn_pressed"]
+[connection signal="pressed" from="GoldSysten/PopUpBook/Arrows/LeftMineBtn" to="." method="_on_LeftMineBtn_pressed"]
+[connection signal="pressed" from="GoldSysten/PopUpBook/Arrows/RightMineBtn" to="." method="_on_RightMineBtn_pressed"]
