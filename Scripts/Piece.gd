@@ -22,7 +22,13 @@ func switch_texture(mat):
 func show_shield():
 	sprite.modulate = Color(1,1,0.4,1)
 
-func explode():
-	$AnimationPlayer.play("Explode")
-	sprite.hide()
+func get_color():
+	return sprite.modulate
 
+func explode():
+	if sprite.modulate == Color(1,1,1,1):
+		$AnimationPlayer.play("Explode")
+		sprite.hide()
+	if sprite.modulate == Color(1,1,0.4,1):
+		$AnimationPlayer.play("Explode")
+		sprite.modulate = Color(1,1,1,1)
