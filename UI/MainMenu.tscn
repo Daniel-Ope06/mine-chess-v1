@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Assets/Menu/pixel-art-castle-fantasy-art-clouds-dark-1929717-wallhere.com.jpg" type="Texture" id=1]
+[ext_resource path="res://Chess Pieces/UI_Buttons.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scripts/MainMenu.gd" type="Script" id=3]
+[ext_resource path="res://UI/MouseCursor.tscn" type="PackedScene" id=4]
+[ext_resource path="res://UI/Transitions.tscn" type="PackedScene" id=5]
+
+[node name="MainMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 1 )
+expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Buttons" type="Node2D" parent="Background"]
+
+[node name="RestartBtn" parent="Background/Buttons" instance=ExtResource( 2 )]
+position = Vector2( 20, 80 )
+
+[node name="ControlsBtn" parent="Background/Buttons" instance=ExtResource( 2 )]
+position = Vector2( 20, 180 )
+
+[node name="SettingsBtn" parent="Background/Buttons" instance=ExtResource( 2 )]
+position = Vector2( 20, 280 )
+
+[node name="QuitBtn" parent="Background/Buttons" instance=ExtResource( 2 )]
+position = Vector2( 20, 380 )
+
+[node name="MouseCursor" parent="." instance=ExtResource( 4 )]
+position = Vector2( 466, 218 )
+
+[node name="Transitions" parent="." instance=ExtResource( 5 )]

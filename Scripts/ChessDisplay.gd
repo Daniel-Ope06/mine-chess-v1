@@ -66,13 +66,13 @@ var pop_up_books = false
 # Gold system
 var black_gold = 9; var white_gold = 9
 var black_mine = 1; var white_mine = 1
-var black_sheild = 1; var white_sheild = 1
+var black_shield = 1; var white_shield = 1
 var arrow_action
 onready var mine_number = $GoldSysten/PopUpBook/Numbers/MineNumber
-onready var sheild_number = $GoldSysten/PopUpBook/Numbers/ShieldNumber
+onready var shield_number = $GoldSysten/PopUpBook/Numbers/ShieldNumber
 var chess_notation = {'A':0, 'B':1, 'C':2, 'D':3, 'E':4, 'F':5, 'G':6, 'H':7}
-var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING':0}
-var button_frame = {'1':5, '2':6, '3':7, '4':8, '5':9, '6':15, '7':16, '8':17, '9':18, '10':19} #score:frame
+var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING':0, 'MINE':3, 'SHIELD':5}
+var button_frame = {'0':27, '1':5, '2':6, '3':7, '4':8, '5':9, '6':15, '7':16, '8':17, '9':18, '10':19} #score:frame
 
 
 func _ready() -> void:
@@ -100,30 +100,27 @@ func _ready() -> void:
 	$PawnPromotion.hide()
 	$GoldSysten/PopUpBook.hide()
 	
+	# Gold, Shield & Mines
+	mine_number.set_frame(5)
+	shield_number.set_frame(5)
+	
 	# Test pieces
 	spawn_piece(9, 'W_PAWN', Vector2(6,5))
 	spawn_piece(3, 'B_PAWN', Vector2(5,2))
 	spawn_piece(2, 'B_BISHOP', Vector2(5,3))
 	spawn_piece(11, 'W_QUEEN', Vector2(3,3))
 	spawn_piece(0, 'B_ROOK', Vector2(4,3))
-	
-	# Gold, Shield & Mines
-	mine_number.set_frame(5)
-	sheild_number.set_frame(5)
-	
+
 
 func _process(_delta) -> void:
 	mouse_pos = get_global_mouse_position()
-	
-	#if inside_grid(pixel_to_grid(mouse_pos)):
 	show_path(); choose_path()
-	place_mine();set_mine(); gold_popup()
+	place_mine();set_mine()
 	place_shield(); set_shield()
+	gold_popup(); display_gold()
+	display_numbers(); update_numbers()
 	disable_btn()
 	display_CheckAndCheckmate()
-	display_gold()
-	display_mine_number()
-	update_number()
 
 
 # Grid System
@@ -238,7 +235,7 @@ func choose_path():
 					movement_occured = true
 				if target_type == 'MINE':
 					move_piece(selected_type, selected_piece, pos, target)
-					stepped_on_mine(pos, target, selected_piece, selected_type)
+					stepped_on_mine(target, selected_piece, selected_type)
 					gold_count(target_type, selected_type)
 					movement_occured = true
 			
@@ -426,13 +423,21 @@ func kill_enemy(selected_type, selected_piece, target_piece, pos, target):
 	selected_piece.animate(grid_to_pixel(target))
 	promotion_popup(selected_type, target)
 
-func stepped_on_mine(pos, target, selected_piece, selected_type):
-	yield(get_tree().create_timer(0.6), "timeout")
-	selected_piece.explode()
-	yield(get_tree().create_timer(1.0), "timeout")
-	selected_piece.queue_free()
-	piece_type[target.x][target.y] = null
-	piece_object[target.x][target.y] = null
+func stepped_on_mine(target, selected_piece, selected_type):
+	if selected_piece.get_color() == Color(1,1,1,1):
+		yield(get_tree().create_timer(0.6), "timeout")
+		selected_piece.explode()
+		yield(get_tree().create_timer(1.0), "timeout")
+		selected_piece.queue_free()
+		piece_type[target.x][target.y] = null
+		piece_object[target.x][target.y] = null
+	
+	if selected_piece.get_color() == Color(1,1,0.4,1):
+		yield(get_tree().create_timer(0.6), "timeout")
+		selected_piece.explode()
+		yield(get_tree().create_timer(1.0), "timeout")
+		piece_type[target.x][target.y] = selected_type
+		piece_object[target.x][target.y] = selected_piece
 
 
 # Special functions
@@ -800,38 +805,77 @@ func place_mine():
 		if inside_grid(mine_pos) and (piece_type[mine_pos.x][mine_pos.y] == null):
 			hide_tileset(mineset)
 			mineset[mine_pos.x][mine_pos.y].show()
+		else:
+			hide_tileset(mineset)
+			mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 
 func set_mine():
 	if Input.is_action_just_pressed("ui_right_click") and (mouse.texture == mine_cursor):
 		var mine_click = get_global_mouse_position()
 		var mine_pos = pixel_to_grid(mine_click)
 		
-		if inside_grid(mine_pos):
+		var mine
+		if white_turn == true:
+			mine = white_mine
+		if white_turn == false:
+			mine = black_mine
+		
+		if inside_grid(mine_pos) and mine > 0:
 			if mineset[mine_pos.x][mine_pos.y].visible == true:
 				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 				hide_tileset(mineset)
 				piece_type[mine_pos.x][mine_pos.y] = 'MINE'
+			
+			mine = mine - 1
+			var frame = button_frame[str(mine)]
+			mine_number.set_frame(frame)
+			
+			if white_turn == true:
+				white_mine = mine
+			if white_turn == false:
+				black_mine = mine
 
 func place_shield():
 	if  Input.is_action_just_pressed("ui_click") and (mouse.texture == shield_cursor):
-		var mine_click = get_global_mouse_position()
-		var mine_pos = pixel_to_grid(mine_click)
+		var shield_click = get_global_mouse_position()
+		var shield_pos = pixel_to_grid(shield_click)
 		
-		if inside_grid(mine_pos) and (piece_object[mine_pos.x][mine_pos.y] != null) :
+		if inside_grid(shield_pos) and (piece_object[shield_pos.x][shield_pos.y] != null):
+			if white_turn == true and "W_" in piece_type[shield_pos.x][shield_pos.y]:
+				hide_tileset(shieldset)
+				shieldset[shield_pos.x][shield_pos.y].show()
+			if white_turn == false and "B_" in piece_type[shield_pos.x][shield_pos.y]:
+				hide_tileset(shieldset)
+				shieldset[shield_pos.x][shield_pos.y].show()
+		else:
 			hide_tileset(shieldset)
-			shieldset[mine_pos.x][mine_pos.y].show()
+			mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 
 func set_shield():
 	if Input.is_action_just_pressed("ui_right_click") and (mouse.texture == shield_cursor):
-		var mine_click = get_global_mouse_position()
-		var mine_pos = pixel_to_grid(mine_click)
+		var shield_click = get_global_mouse_position()
+		var shield_pos = pixel_to_grid(shield_click)
 		
-		if inside_grid(mine_pos):
-			if shieldset[mine_pos.x][mine_pos.y].visible == true:
+		var shield
+		if white_turn == true:
+			shield = white_shield
+		if white_turn == false:
+			shield = black_shield
+		
+		if inside_grid(shield_pos) and shield > 0:
+			if shieldset[shield_pos.x][shield_pos.y].visible == true:
 				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 				hide_tileset(shieldset)
-				piece_type[mine_pos.x][mine_pos.y] += '_SHIELD'
-				piece_object[mine_pos.x][mine_pos.y].show_shield()
+				piece_object[shield_pos.x][shield_pos.y].show_shield()
+			
+			shield = shield - 1
+			var frame = button_frame[str(shield)]
+			shield_number.set_frame(frame)
+			
+			if white_turn == true:
+				white_shield = shield
+			if white_turn == false:
+				black_shield = shield
 
 func disable_btn():
 	if white_turn == true:
@@ -876,72 +920,72 @@ func display_gold():
 	if black_gold >= 10:
 		$GoldSysten/BlackGold.text = str(black_gold)
 
-func display_mine_number():
+func display_numbers():
 	if white_turn == true:
 		var frame_m = button_frame[str(white_mine)]
-		var frame_s = button_frame[str(white_sheild)]
+		var frame_s = button_frame[str(white_shield)]
 		mine_number.set_frame(frame_m)
-		sheild_number.set_frame(frame_s)
+		shield_number.set_frame(frame_s)
 	if white_turn == false:
 		var frame_m = button_frame[str(black_mine)]
-		var frame_s = button_frame[str(black_sheild)]
+		var frame_s = button_frame[str(black_shield)]
 		mine_number.set_frame(frame_m)
-		sheild_number.set_frame(frame_s)
+		shield_number.set_frame(frame_s)
 
-func update_number():
+func update_numbers():
 	var gold
 	var mine
-	var sheild
+	var shield
 	
 	if white_turn == true:
 		gold = white_gold
 		mine = white_mine
-		sheild = white_sheild
+		shield = white_shield
 	if white_turn == false:
 		gold = black_gold
 		mine = black_mine
-		sheild = black_sheild
+		shield = black_shield
 	
 	if arrow_action == '+MINE':
-		if mine < 10 and gold >= 3:
+		if mine < 10 and gold >= piece_value['MINE']:
 			mine = mine + 1
-			gold = gold - 3
+			gold = gold - piece_value['MINE']
 			var frame = button_frame[str(mine)]
 			mine_number.set_frame(frame)
 		arrow_action = 'NONE'
 	
 	if arrow_action == '-MINE':
-		if mine > 1:
+		if mine > 0:
 			mine = mine - 1
-			gold = gold + 3
+			gold = gold + piece_value['MINE']
 			var frame = button_frame[str(mine)]
 			mine_number.set_frame(frame)
 		arrow_action = 'NONE'
 		
-	if arrow_action == '+SHEILD':
-		if sheild < 10 and gold >= 3:
-			sheild = sheild + 1
-			gold = gold - 3
-			var frame = button_frame[str(sheild)]
-			sheild_number.set_frame(frame)
+	if arrow_action == '+SHIELD':
+		if shield < 10 and gold >= piece_value['SHIELD']:
+			shield = shield + 1
+			gold = gold - piece_value['SHIELD']
+			var frame = button_frame[str(shield)]
+			shield_number.set_frame(frame)
 		arrow_action = 'NONE'
 	
-	if arrow_action == '-SHEILD':
-		if sheild > 1:
-			sheild = sheild - 1
-			gold = gold + 3
-			var frame = button_frame[str(sheild)]
-			sheild_number.set_frame(frame)
+	if arrow_action == '-SHIELD':
+		if shield > 0:
+			shield = shield - 1
+			gold = gold + piece_value['SHIELD']
+			var frame = button_frame[str(shield)]
+			shield_number.set_frame(frame)
 		arrow_action = 'NONE'
 	
 	if white_turn == true:
 		white_gold = gold 
 		white_mine = mine
-		white_sheild = sheild
+		white_shield = shield
 	if white_turn == false:
 		black_gold = gold
 		black_mine = mine
-		black_sheild = sheild
+		black_shield = shield
 
 
 # Buttons
@@ -1031,7 +1075,7 @@ func _on_LeftMineBtn_pressed() -> void:
 	arrow_action = '-MINE'
 
 func _on_RightShieldBtn_pressed() -> void:
-	arrow_action = '+SHEILD'
+	arrow_action = '+SHIELD'
 
 func _on_LeftShieldBtn_pressed() -> void:
-	arrow_action = '-SHEILD'
+	arrow_action = '-SHIELD'
