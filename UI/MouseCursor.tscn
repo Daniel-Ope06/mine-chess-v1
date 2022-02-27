@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scripts/MouseCursor.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Others/item_2_flip.png" type="Texture" id=2]
+
+[node name="MouseCursor" type="Sprite"]
+texture = ExtResource( 2 )
+centered = false
+script = ExtResource( 1 )

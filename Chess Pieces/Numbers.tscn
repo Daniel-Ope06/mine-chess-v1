@@ -1,9 +1,10 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Assets/Others/numbers.png" type="Texture" id=1]
+[ext_resource path="res://Assets/Others/NumbersSpriteSheet.png" type="Texture" id=1]
 
 [node name="Numbers" type="Sprite"]
-scale = Vector2( 0.3, 0.3 )
+scale = Vector2( 0.5, 0.5 )
 texture = ExtResource( 1 )
 hframes = 5
-vframes = 4
+vframes = 6
+frame = 15

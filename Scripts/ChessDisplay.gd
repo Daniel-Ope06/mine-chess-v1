@@ -3,9 +3,13 @@ extends Node2D
 # Mouse cursors
 onready var mouse = $Sprites/MouseCursor
 const cursor = preload("res://Assets/Others/item_2_flip.png")
+const cursor_lg = preload("res://Assets/Others/item_2_flip-enlarged.png")
 const mine_cursor = preload("res://Assets/Others/item_14.png")
 const shield_cursor = preload("res://Assets/Others/shield_gold.png")
 var mouse_pos
+
+# Scenes
+const gameOver = preload("res://UI/GameOver.tscn")
 
 # Tiles
 const tile = preload("res://Chess Pieces/HighlightTile.tscn")
@@ -105,11 +109,17 @@ func _ready() -> void:
 	shield_number.set_frame(5)
 	
 	# Test pieces
-	spawn_piece(9, 'W_PAWN', Vector2(6,5))
-	spawn_piece(3, 'B_PAWN', Vector2(5,2))
-	spawn_piece(2, 'B_BISHOP', Vector2(5,3))
-	spawn_piece(11, 'W_QUEEN', Vector2(3,3))
-	spawn_piece(0, 'B_ROOK', Vector2(4,3))
+#	spawn_piece(9, 'W_PAWN', Vector2(6,5))
+#	spawn_piece(3, 'B_PAWN', Vector2(5,2))
+#	spawn_piece(2, 'B_BISHOP', Vector2(5,3))
+#	spawn_piece(11, 'W_QUEEN', Vector2(3,3))
+#	spawn_piece(0, 'B_ROOK', Vector2(4,3))
+
+	#spawn_piece(4, 'B_KING', Vector2(5,2))
+	#spawn_piece(10, 'W_KING', Vector2(6,5))
+	#spawn_piece(3, 'B_PAWN', Vector2(6,2))
+	#spawn_piece(9, 'W_PAWN', Vector2(6,5))
+	
 
 
 func _process(_delta) -> void:
@@ -152,7 +162,7 @@ func inside_grid(pos):
 # Spawn Pieces
 func spawn_piece(n, type, pos):
 	var piece = chess_pieces[n].instance()
-	add_child(piece)
+	$ChessPieces.add_child(piece)
 	piece.position = grid_to_pixel(pos)
 	piece_object[pos.x][pos.y] = piece
 	piece_type[pos.x][pos.y] = type
@@ -249,9 +259,9 @@ func piece_path(selected_type, selected_piece, pos):
 	if selected_piece != null:
 		pawn_path(selected_type, pos)
 		
-		if 'W_' in selected_type and white_turn:
+		if selected_type == 'W_KNIGHT' and white_turn:
 			knight_path(selected_type, pos)
-		if 'B_' in selected_type and not(white_turn):
+		if selected_type == 'B_KNIGHT' and not(white_turn):
 			knight_path(selected_type, pos)
 		
 		if selected_type == 'W_BISHOP' and white_turn:
@@ -268,6 +278,11 @@ func piece_path(selected_type, selected_piece, pos):
 			queen_path(selected_type, pos)
 		if selected_type == 'B_QUEEN' and not(white_turn):
 			queen_path(selected_type, pos)
+			
+		if selected_type == 'W_KING' and white_turn:
+			king_path(selected_type, pos)
+		if selected_type == 'B_KING' and not(white_turn):
+			king_path(selected_type, pos)
 
 func pawn_path(selected_type, pos):
 	if selected_type == 'W_PAWN' and white_turn:
@@ -319,17 +334,16 @@ func pawn_path(selected_type, pos):
 					tileset[pos.x+1][pos.y-1].show()
 
 func knight_path(selected_type, pos):
-	if 'KNIGHT' in selected_type:
-		var pos1 = Vector2(pos.x-2, pos.y+1); var pos2 = Vector2(pos.x+2, pos.y+1)
-		var pos3 = Vector2(pos.x-2, pos.y-1); var pos4 = Vector2(pos.x+2, pos.y-1)
-		var pos5 = Vector2(pos.x-1, pos.y+2); var pos6 = Vector2(pos.x+1, pos.y+2)
-		var pos7 = Vector2(pos.x-1, pos.y-2); var pos8 = Vector2(pos.x+1, pos.y-2)
-		var path = [pos1,pos2,pos3,pos4,pos5,pos6,pos7,pos8]
-		
-		for posI in path:
-			if inside_grid(posI):
-				if (piece_type[posI.x][posI.y] == null) or (('B_' in piece_type[posI.x][posI.y]) and ('W_' in selected_type)) or (('W_' in piece_type[posI.x][posI.y]) and ('B_' in selected_type)):
-					tileset[posI.x][posI.y].show()
+	var pos1 = Vector2(pos.x-2, pos.y+1); var pos2 = Vector2(pos.x+2, pos.y+1)
+	var pos3 = Vector2(pos.x-2, pos.y-1); var pos4 = Vector2(pos.x+2, pos.y-1)
+	var pos5 = Vector2(pos.x-1, pos.y+2); var pos6 = Vector2(pos.x+1, pos.y+2)
+	var pos7 = Vector2(pos.x-1, pos.y-2); var pos8 = Vector2(pos.x+1, pos.y-2)
+	var path = [pos1,pos2,pos3,pos4,pos5,pos6,pos7,pos8]
+	
+	for posI in path:
+		if inside_grid(posI):
+			if (piece_type[posI.x][posI.y] == null) or (piece_type[posI.x][posI.y] == 'MINE') or (('B_' in piece_type[posI.x][posI.y]) and ('W_' in selected_type)) or (('W_' in piece_type[posI.x][posI.y]) and ('B_' in selected_type)):
+				tileset[posI.x][posI.y].show()
 
 func bishop_path(selected_type, pos):
 	var i_UpLeft = 1
@@ -403,6 +417,18 @@ func queen_path(selected_type, pos):
 	bishop_path(selected_type, pos)
 	rook_path(selected_type, pos)
 
+func king_path(selected_type, pos):
+	var pos1 = Vector2(pos.x-1, pos.y);   var pos2 = Vector2(pos.x+1, pos.y)
+	var pos3 = Vector2(pos.x-1, pos.y-1); var pos4 = Vector2(pos.x+1, pos.y-1)
+	var pos5 = Vector2(pos.x-1, pos.y+1); var pos6 = Vector2(pos.x+1, pos.y+1)
+	var pos7 = Vector2(pos.x, pos.y-1); var pos8 = Vector2(pos.x, pos.y+1)
+	var path = [pos1,pos2,pos3,pos4,pos5,pos6,pos7,pos8]
+	
+	for posI in path:
+		if inside_grid(posI):
+			if (piece_type[posI.x][posI.y] == null) or (piece_type[posI.x][posI.y] == 'MINE') or (('B_' in piece_type[posI.x][posI.y]) and ('W_' in selected_type)) or (('W_' in piece_type[posI.x][posI.y]) and ('B_' in selected_type)):
+				tileset[posI.x][posI.y].show()
+
 
 # Movement
 func update_array(selected_type, selected_piece, pos, target):
@@ -456,13 +482,13 @@ func promotion_popup(selected_type, target):
 func promote_to(promotion, chess_piece,  pos, sprite):
 	piece_object[pos.x][pos.y].switch_texture(null)
 	var piece = chess_pieces[chess_piece].instance()
-	add_child(piece)
+	$ChessPieces.add_child(piece)
 	piece.position = grid_to_pixel(pos)
 	piece_object[pos.x][pos.y] = piece
 	piece_type[pos.x][pos.y] = promotion
 	piece_object[pos.x][pos.y].switch_texture(piece_textures[sprite])
 
-func in_check(pos):
+func in_check(pos, turn):
 	var path_up = check_path(pos, Vector2(0, 1)); var path_down = check_path(pos, Vector2(0, -1))
 	var path_right = check_path(pos, Vector2(1, 0)); var path_left = check_path(pos, Vector2(-1, 0))
 	
@@ -474,7 +500,11 @@ func in_check(pos):
 	
 	var path_knight = check_knight(pos)
 	
-	var T = not_turn()
+	var T
+	if turn == 'W_':
+		T = 'B_'
+	if turn == 'B_':
+		T = 'W_'
 	
 	if (T+'ROOK' in cross_path) or (T+'QUEEN' in cross_path):
 		return true
@@ -485,24 +515,41 @@ func in_check(pos):
 	for i in path_knight:
 		if (i != null) and (T+'KNIGHT' in i):
 			return true
+	
+	var all_paths = [path_up, path_down, path_right, path_left, path_up_right, path_up_left, path_down_right, path_down_left]
+	
+	if white_turn:
+		for i in range(4,6):
+			var path = all_paths[i]
+			if (len(path)>1) and (path[1] != null) and (T+'PAWN' in path):
+				return true
+	if not(white_turn):
+		for i in range(6,8):
+			var path = all_paths[i]
+			if (len(path)>1) and (path[1] != null) and (T+'PAWN' in path):
+				return true
+	
+	for path in all_paths:
+		if (len(path)>1) and (path[1] != null) and (T+'KING' in path[1]):
+			return true
 
-func in_checkmate(pos):
+func in_checkmate(pos, turn):
 	var InCheck = []
-	if inCheck_king(pos, 0,1):
+	if inCheck_king(pos, 0,1, turn):
 		InCheck.append(true)
-	if inCheck_king(pos, 0,-1):
+	if inCheck_king(pos, 0,-1, turn):
 		InCheck.append(true)
-	if inCheck_king(pos, 1,0):
+	if inCheck_king(pos, 1,0, turn):
 		InCheck.append(true)
-	if inCheck_king(pos, 1,1):
+	if inCheck_king(pos, 1,1, turn):
 		InCheck.append(true)
-	if inCheck_king(pos, 1,-1):
+	if inCheck_king(pos, 1,-1, turn):
 		InCheck.append(true)
-	if inCheck_king(pos, -1,0):
+	if inCheck_king(pos, -1,0, turn):
 		InCheck.append(true)
-	if inCheck_king(pos, -1,1):
+	if inCheck_king(pos, -1,1, turn):
 		InCheck.append(true)
-	if inCheck_king(pos, -1,-1):
+	if inCheck_king(pos, -1,-1, turn):
 		InCheck.append(true)
 	
 	
@@ -513,141 +560,164 @@ func in_checkmate(pos):
 	var path_down_right = check_path(pos, Vector2(1, -1)); var path_down_left = check_path(pos, Vector2(-1, -1))
 
 	var path_knight = check_knight(pos)
+	
+	var T
+	if turn == 'W_':
+		T = 'B_'
+	if turn == 'B_':
+		T = 'W_'
+	
+	if (T+'ROOK' in path_up):
+		InCheck.append(not(in_check(Vector2(pos.x, pos.y + path_up.find(T+'ROOK')), turn)))
+		var i = 1
+		while path_up.find(T+'ROOK') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x, pos.y + (path_up.find(T+'ROOK') - i)))))
+			i = i + 1
 
-#	var T = not_turn()
-#
-#	if (T+'ROOK' in path_up):
-#		InCheck.append(not(in_check(Vector2(pos.x, pos.y + path_up.find(T+'ROOK')))))
-#		var i = 1
-#		while path_up.find(T+'ROOK') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x, pos.y + (path_up.find(T+'ROOK') - i)))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_up):
-#		InCheck.append(not(in_check(Vector2(pos.x, pos.y + path_up.find(T+'QUEEN')))))
-#		var i = 1
-#		while path_up.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x, pos.y + (path_up.find(T+'QUEEN') - i)))))
-#			i = i + 1
-#
-#	if (T+'ROOK' in path_down):
-#		InCheck.append(not(in_check(Vector2(pos.x, pos.y - path_down.find(T+'ROOK')))))
-#		var i = 1
-#		while path_down.find(T+'ROOK') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x, pos.y - (path_up.find(T+'ROOK') - i)))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_down):
-#		InCheck.append(not(in_check(Vector2(pos.x, pos.y - path_down.find(T+'QUEEN')))))
-#		var i = 1
-#		while path_down.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x, pos.y - (path_down.find(T+'QUEEN') - i)))))
-#			i = i + 1
-#
-#	if (T+'ROOK' in path_right):
-#		InCheck.append(not(in_check(Vector2(pos.x  + path_right.find(T+'ROOK'), pos.y))))
-#		var i = 1
-#		while path_right.find(T+'ROOK') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x + (path_right.find(T+'ROOK') - i), pos.y))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_right):
-#		InCheck.append(not(in_check(Vector2(pos.x  + path_right.find(T+'QUEEN'), pos.y))))
-#		var i = 1
-#		while path_right.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x + (path_right.find(T+'QUEEN') - i), pos.y))))
-#			i = i + 1
-#
-#	if (T+'ROOK' in path_left):
-#		InCheck.append(not(in_check(Vector2(pos.x  - path_left.find(T+'ROOK'), pos.y))))
-#		var i = 1
-#		while path_left.find(T+'ROOK') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x - (path_left.find(T+'ROOK') - i), pos.y))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_left):
-#		InCheck.append(not(in_check(Vector2(pos.x  - path_left.find(T+'QUEEN'), pos.y))))
-#		var i = 1
-#		while path_left.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x - (path_left.find(T+'QUEEN') - i), pos.y))))
-#			i = i + 1
-#
-#	if (T+'BISHOP' in path_up_right):
-#		InCheck.append(not(in_check(Vector2(pos.x  + path_up_right.find(T+'BISHOP'), pos.y + path_up_right.find(T+'BISHOP')))))
-#		var i = 1
-#		while path_up_right.find(T+'BISHOP') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x + (path_up_right.find(T+'BISHOP') - i), pos.y + path_up_right.find(T+'BISHOP')))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_up_right):
-#		InCheck.append(not(in_check(Vector2(pos.x  + path_up_right.find(T+'QUEEN'), pos.y + path_up_right.find(T+'QUEEN')))))
-#		var i = 1
-#		while path_up_right.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x + (path_up_right.find(T+'QUEEN') - i), pos.y + path_up_right.find(T+'QUEEN')))))
-#			i = i + 1
-#
-#	if (T+'BISHOP' in path_up_left):
-#		InCheck.append(not(in_check(Vector2(pos.x  - path_up_left.find(T+'BISHOP'), pos.y + path_up_left.find(T+'BISHOP')))))
-#		var i = 1
-#		while path_up_left.find(T+'BISHOP') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x - (path_up_left.find(T+'BISHOP') - i), pos.y + path_up_left.find(T+'BISHOP')))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_up_left):
-#		InCheck.append(not(in_check(Vector2(pos.x  - path_up_left.find(T+'QUEEN'), pos.y + path_up_left.find(T+'QUEEN')))))
-#		var i = 1
-#		while path_up_left.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x - (path_up_left.find(T+'QUEEN') - i), pos.y + path_up_left.find(T+'QUEEN')))))
-#			i = i + 1
-#
-#	if (T+'BISHOP' in path_down_right):
-#		InCheck.append(not(in_check(Vector2(pos.x  + path_down_right.find(T+'BISHOP'), pos.y - path_down_right.find(T+'BISHOP')))))
-#		var i = 1
-#		while path_down_right.find(T+'BISHOP') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x + (path_down_right.find(T+'BISHOP') - i), pos.y - path_down_right.find(T+'BISHOP')))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_down_right):
-#		InCheck.append(not(in_check(Vector2(pos.x  + path_down_right.find(T+'QUEEN'), pos.y - path_down_right.find(T+'QUEEN')))))
-#		var i = 1
-#		while path_down_right.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x + (path_down_right.find(T+'QUEEN') - i), pos.y - path_down_right.find(T+'QUEEN')))))
-#			i = i + 1
-#
-#	if (T+'BISHOP' in path_down_left):
-#		InCheck.append(not(in_check(Vector2(pos.x  - path_down_left.find(T+'BISHOP'), pos.y - path_down_left.find(T+'BISHOP')))))
-#		var i = 1
-#		while path_down_left.find(T+'BISHOP') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x - (path_down_left.find(T+'BISHOP') - i), pos.y - path_down_left.find(T+'BISHOP')))))
-#			i = i + 1
-#
-#	if (T+'QUEEN' in path_down_left):
-#		InCheck.append(not(in_check(Vector2(pos.x  - path_down_left.find(T+'QUEEN'), pos.y - path_down_left.find(T+'QUEEN')))))
-#		var i = 1
-#		while path_down_left.find(T+'QUEEN') - i > 0:
-#			InCheck.append(not(block_path(Vector2(pos.x - (path_down_left.find(T+'QUEEN') - i), pos.y - path_down_left.find(T+'BISHOP')))))
-#			i = i + 1
+	if (T+'QUEEN' in path_up):
+		InCheck.append(not(in_check(Vector2(pos.x, pos.y + path_up.find(T+'QUEEN')), turn)))
+		var i = 1
+		while path_up.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x, pos.y + (path_up.find(T+'QUEEN') - i)))))
+			i = i + 1
+
+	if (T+'ROOK' in path_down):
+		InCheck.append(not(in_check(Vector2(pos.x, pos.y - path_down.find(T+'ROOK')), turn)))
+		var i = 1
+		while path_down.find(T+'ROOK') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x, pos.y - (path_up.find(T+'ROOK') - i)))))
+			i = i + 1
+
+	if (T+'QUEEN' in path_down):
+		InCheck.append(not(in_check(Vector2(pos.x, pos.y - path_down.find(T+'QUEEN')), turn)))
+		var i = 1
+		while path_down.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x, pos.y - (path_down.find(T+'QUEEN') - i)))))
+			i = i + 1
+
+	if (T+'ROOK' in path_right):
+		InCheck.append(not(in_check(Vector2(pos.x  + path_right.find(T+'ROOK'), pos.y), turn)))
+		var i = 1
+		while path_right.find(T+'ROOK') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x + (path_right.find(T+'ROOK') - i), pos.y))))
+			i = i + 1
+
+	if (T+'QUEEN' in path_right):
+		InCheck.append(not(in_check(Vector2(pos.x  + path_right.find(T+'QUEEN'), pos.y), turn)))
+		var i = 1
+		while path_right.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x + (path_right.find(T+'QUEEN') - i), pos.y))))
+			i = i + 1
+
+	if (T+'ROOK' in path_left):
+		InCheck.append(not(in_check(Vector2(pos.x  - path_left.find(T+'ROOK'), pos.y), turn)))
+		var i = 1
+		while path_left.find(T+'ROOK') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x - (path_left.find(T+'ROOK') - i), pos.y))))
+			i = i + 1
+
+	if (T+'QUEEN' in path_left):
+		InCheck.append(not(in_check(Vector2(pos.x  - path_left.find(T+'QUEEN'), pos.y), turn)))
+		var i = 1
+		while path_left.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x - (path_left.find(T+'QUEEN') - i), pos.y))))
+			i = i + 1
+
+	if (T+'BISHOP' in path_up_right):
+		InCheck.append(not(in_check(Vector2(pos.x  + path_up_right.find(T+'BISHOP'), pos.y + path_up_right.find(T+'BISHOP')), turn)))
+		var i = 1
+		while path_up_right.find(T+'BISHOP') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x + (path_up_right.find(T+'BISHOP') - i), pos.y + path_up_right.find(T+'BISHOP')))))
+			i = i + 1
+
+	if (T+'QUEEN' in path_up_right):
+		InCheck.append(not(in_check(Vector2(pos.x  + path_up_right.find(T+'QUEEN'), pos.y + path_up_right.find(T+'QUEEN')), turn)))
+		var i = 1
+		while path_up_right.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x + (path_up_right.find(T+'QUEEN') - i), pos.y + path_up_right.find(T+'QUEEN')))))
+			i = i + 1
+
+	if (T+'BISHOP' in path_up_left):
+		InCheck.append(not(in_check(Vector2(pos.x  - path_up_left.find(T+'BISHOP'), pos.y + path_up_left.find(T+'BISHOP')), turn)))
+		var i = 1
+		while path_up_left.find(T+'BISHOP') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x - (path_up_left.find(T+'BISHOP') - i), pos.y + path_up_left.find(T+'BISHOP')))))
+			i = i + 1
+
+	if (T+'QUEEN' in path_up_left):
+		InCheck.append(not(in_check(Vector2(pos.x  - path_up_left.find(T+'QUEEN'), pos.y + path_up_left.find(T+'QUEEN')), turn)))
+		var i = 1
+		while path_up_left.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x - (path_up_left.find(T+'QUEEN') - i), pos.y + path_up_left.find(T+'QUEEN')))))
+			i = i + 1
+
+	if (T+'BISHOP' in path_down_right):
+		InCheck.append(not(in_check(Vector2(pos.x  + path_down_right.find(T+'BISHOP'), pos.y - path_down_right.find(T+'BISHOP')), turn)))
+		var i = 1
+		while path_down_right.find(T+'BISHOP') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x + (path_down_right.find(T+'BISHOP') - i), pos.y - path_down_right.find(T+'BISHOP')))))
+			i = i + 1
+
+	if (T+'QUEEN' in path_down_right):
+		InCheck.append(not(in_check(Vector2(pos.x  + path_down_right.find(T+'QUEEN'), pos.y - path_down_right.find(T+'QUEEN')), turn)))
+		var i = 1
+		while path_down_right.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x + (path_down_right.find(T+'QUEEN') - i), pos.y - path_down_right.find(T+'QUEEN')))))
+			i = i + 1
+
+	if (T+'BISHOP' in path_down_left):
+		InCheck.append(not(in_check(Vector2(pos.x  - path_down_left.find(T+'BISHOP'), pos.y - path_down_left.find(T+'BISHOP')), turn)))
+		var i = 1
+		while path_down_left.find(T+'BISHOP') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x - (path_down_left.find(T+'BISHOP') - i), pos.y - path_down_left.find(T+'BISHOP')))))
+			i = i + 1
+
+	if (T+'QUEEN' in path_down_left):
+		InCheck.append(not(in_check(Vector2(pos.x  - path_down_left.find(T+'QUEEN'), pos.y - path_down_left.find(T+'QUEEN')), turn)))
+		var i = 1
+		while path_down_left.find(T+'QUEEN') - i > 0:
+			InCheck.append(not(block_path(Vector2(pos.x - (path_down_left.find(T+'QUEEN') - i), pos.y - path_down_left.find(T+'BISHOP')))))
+			i = i + 1
 	
 	if InCheck.count(true) == len(InCheck) and len(InCheck) > 1:
-		print(InCheck)
+		#print(InCheck)
 		return true
 	else:
 		return false
 
 func display_CheckAndCheckmate():
-	var king_pos
+	var king_pos; var turn
 	if white_turn == true:
 		king_pos = find_index('W_KING')
+		turn = 'W_'
 	if white_turn == false:
 		king_pos = find_index('B_KING')
+		turn = 'B_'
 	
 	if (king_pos != null):
-		if in_check(king_pos):
+		if in_check(king_pos, turn) and not(in_checkmate(king_pos, turn)):
 			mineset[king_pos.x][king_pos.y].show()
+		if in_check(king_pos, turn) and in_checkmate(king_pos, turn):
+			shieldset[king_pos.x][king_pos.y].show()
+			yield(get_tree().create_timer(2.0), "timeout")
+			var game_over = gameOver.instance()
+			add_child(game_over)
+			$CameraLarge.current = true
+			mouse.switch_cursor(cursor, Vector2(2,2), Vector2(-7,-7))
+			game_over.set_winner(not(white_turn))
+			var disable = [
+				$Sprites/Background, $Sprites/ChessBoard,
+				$PawnPromotion, $GoldSysten, $ChessPieces,
+				$CameraSmall
+			]
+			
+			for node in disable:
+				node.hide()
+				node.set_process(false)
+				node.set_process_input(false)
+		
 		if movement_occured:
 			hide_tileset(mineset)
-#		if in_checkmate(king_pos):
-#			shieldset[king_pos.x][king_pos.y].show()
 
 func find_index(piece):
 	for i in range(piece_type.size()):
@@ -701,7 +771,7 @@ func check_knight(pos : Vector2):
 	if inside_grid(pos + Vector2(-1, 2)):
 		path.append(piece_type[pos.x - 1][pos.y + 2])
 	if inside_grid(pos + Vector2(-1, -2)):
-		path.append(piece_type[pos.x + 1][pos.y - 2])
+		path.append(piece_type[pos.x - 1][pos.y - 2])
 	return path
 
 func block_path(pos : Vector2):
@@ -716,7 +786,11 @@ func block_path(pos : Vector2):
 	
 	var path_knight = check_knight(pos)
 	
-	var T = turn()
+	var T
+	if white_turn == true:
+		T = "W_"
+	if white_turn == false:
+		T = "B_"
 	
 	if (T+'ROOK' in cross_path) or (T+'QUEEN' in cross_path):
 		return true
@@ -728,14 +802,6 @@ func block_path(pos : Vector2):
 		if (i != null) and (T+'KNIGHT' in i):
 			return true
 
-func turn():
-	var T
-	if white_turn == true:
-		T = "W_"
-	if white_turn == false:
-		T = "B_"
-	return T
-
 func not_turn():
 	var T
 	if white_turn == true:
@@ -744,46 +810,12 @@ func not_turn():
 		T = "W_"
 	return T
 
-func inCheck_king(pos, i,j):
+func inCheck_king(pos, i,j, turn):
 	if inside_grid(pos + Vector2(i, j)):
 		if (piece_type[pos.x + i][pos.y + j] == null) or (piece_type[pos.x + i][pos.y + j] == 'MINE'):
-			if in_check(pos +  Vector2(i, j)):
+			if in_check(pos +  Vector2(i, j), turn):
 				return true
 			return false
-
-
-#func inCheck_path(piece : String, path, direction : Vector2):
-#	var T = not_turn()
-#	var InCheck = []
-#
-#	if (T+piece in path):
-#		InCheck.append(not(in_check(Vector2(pos.x, pos.y + (path.find(T+piece))))))
-#		var d = direction
-#		var i = 1
-#		while path.find(T+piece) - i > 0:
-#			InCheck.append(not(in_check(Vector2(pos.x, pos.y + (path.find(T+piece) - d.y)))))
-#
-#			if d.x == 0 and d.y > 0:
-#				d = d + Vector2(0, 1)
-#			if d.x == 0  and d.y < 0:
-#				d = d + Vector2(0, -1)
-#
-#			if d.x > 0  and d.y == 0:
-#				d = d + Vector2(1, 0)
-#			if d.x > 0  and d.y > 0:
-#				d = d + Vector2(1, 1)
-#			if d.x > 0  and d.y < 0:
-#				d = d + Vector2(1, -1)
-#
-#			if d.x < 0  and d.y == 0:
-#				d = d + Vector2(-1, 0)
-#			if d.x < 0  and d.y > 0:
-#				d = d + Vector2(-1, 1)
-#			if d.x < 0  and d.y < 0:
-#				d = d + Vector2(-1, -1)
-#	return InCheck
-
-
 
 
 # Mine & Gold System

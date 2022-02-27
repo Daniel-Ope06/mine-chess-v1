@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Assets/PeterMilko-Frames.png" type="Texture" id=1]
+[ext_resource path="res://Assets/Others/PeterMilko-Frames.png" type="Texture" id=1]
 
 [node name="HighlightTile" type="Node2D"]
 

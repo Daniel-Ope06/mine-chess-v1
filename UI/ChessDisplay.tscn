@@ -30,9 +30,11 @@ font_data = ExtResource( 13 )
 [node name="ChessDisplay" type="Node2D"]
 script = ExtResource( 4 )
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="CameraSmall" type="Camera2D" parent="."]
 current = true
 zoom = Vector2( 0.5, 0.5 )
+
+[node name="CameraLarge" type="Camera2D" parent="."]
 
 [node name="Sprites" type="Node2D" parent="."]
 
@@ -290,6 +292,8 @@ frame = 8
 
 [node name="ShieldNumber" parent="GoldSysten/PopUpBook/Numbers" instance=ExtResource( 16 )]
 position = Vector2( -172, -4 )
+
+[node name="ChessPieces" type="Node2D" parent="."]
 
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_QueenBtn" to="." method="_on_W_QueenBtn_pressed"]
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_KnightBtn" to="." method="_on_W_KnightBtn_pressed"]
