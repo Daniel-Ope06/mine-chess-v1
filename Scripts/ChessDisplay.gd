@@ -113,18 +113,9 @@ func _ready() -> void:
 	mine_number.set_frame(5)
 	shield_number.set_frame(5)
 	
-	# Test pieces
+	# Test pieces for pawn promotion
 #	spawn_piece(9, 'W_PAWN', Vector2(6,5))
 #	spawn_piece(3, 'B_PAWN', Vector2(5,2))
-#	spawn_piece(2, 'B_BISHOP', Vector2(5,3))
-#	spawn_piece(11, 'W_QUEEN', Vector2(3,3))
-#	spawn_piece(0, 'B_ROOK', Vector2(4,3))
-#	spawn_piece(5, 'B_QUEEN', Vector2(4,3))
-
-	#spawn_piece(4, 'B_KING', Vector2(5,2))
-	#spawn_piece(10, 'W_KING', Vector2(6,5))
-	#spawn_piece(3, 'B_PAWN', Vector2(6,2))
-	#spawn_piece(9, 'W_PAWN', Vector2(6,5))
 
 
 func _process(_delta) -> void:
@@ -557,7 +548,7 @@ func in_check(pos, turn):
 			return true
 	
 	var all_paths = [path_up, path_down, path_right, path_left, path_up_right, path_up_left, path_down_right, path_down_left]
-	
+
 	if white_turn:
 		for i in range(4,6):
 			var path = all_paths[i]
@@ -568,7 +559,7 @@ func in_check(pos, turn):
 			var path = all_paths[i]
 			if (len(path)>1) and (path[1] != null) and (T+'PAWN' in path[1]):
 				return true
-	
+
 	for path in all_paths:
 		if (len(path)>1) and (path[1] != null) and (T+'KING' in path[1]):
 			return true
@@ -595,123 +586,123 @@ func in_checkmate(pos, turn):
 	
 	var path_up = check_path(pos, Vector2(0, 1)); var path_down = check_path(pos, Vector2(0, -1))
 	var path_right = check_path(pos, Vector2(1, 0)); var path_left = check_path(pos, Vector2(-1, 0))
-	
+
 	var path_up_right = check_path(pos, Vector2(1, 1)); var path_up_left = check_path(pos, Vector2(-1, 1))
 	var path_down_right = check_path(pos, Vector2(1, -1)); var path_down_left = check_path(pos, Vector2(-1, -1))
-	
+
 	var path_knight = check_knight(pos)
-	
+
 	var T
 	if turn == 'W_':
 		T = 'B_'
 	if turn == 'B_':
 		T = 'W_'
-	
+
 	if (T+'ROOK' in path_up):
 		InCheck.append(not(in_check(Vector2(pos.x, pos.y + path_up.find(T+'ROOK')), T)))
 		var i = 1
 		while path_up.find(T+'ROOK') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x, pos.y + (path_up.find(T+'ROOK') - i)))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_up):
 		InCheck.append(not(in_check(Vector2(pos.x, pos.y + path_up.find(T+'QUEEN')), T)))
 		var i = 1
 		while path_up.find(T+'QUEEN') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x, pos.y + (path_up.find(T+'QUEEN') - i)))))
 			i = i + 1
-	
+
 	if (T+'ROOK' in path_down):
 		InCheck.append(not(in_check(Vector2(pos.x, pos.y - path_down.find(T+'ROOK')), T)))
 		var i = 1
 		while path_down.find(T+'ROOK') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x, pos.y - (path_up.find(T+'ROOK') - i)))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_down):
 		InCheck.append(not(in_check(Vector2(pos.x, pos.y - path_down.find(T+'QUEEN')), T)))
 		var i = 1
 		while path_down.find(T+'QUEEN') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x, pos.y - (path_down.find(T+'QUEEN') - i)))))
 			i = i + 1
-	
+
 	if (T+'ROOK' in path_right):
 		InCheck.append(not(in_check(Vector2(pos.x  + path_right.find(T+'ROOK'), pos.y), T)))
 		var i = 1
 		while path_right.find(T+'ROOK') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x + (path_right.find(T+'ROOK') - i), pos.y))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_right):
 		InCheck.append(not(in_check(Vector2(pos.x  + path_right.find(T+'QUEEN'), pos.y), T)))
 		var i = 1
 		while path_right.find(T+'QUEEN') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x + (path_right.find(T+'QUEEN') - i), pos.y))))
 			i = i + 1
-	
+
 	if (T+'ROOK' in path_left):
 		InCheck.append(not(in_check(Vector2(pos.x  - path_left.find(T+'ROOK'), pos.y), T)))
 		var i = 1
 		while path_left.find(T+'ROOK') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x - (path_left.find(T+'ROOK') - i), pos.y))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_left):
 		InCheck.append(not(in_check(Vector2(pos.x  - path_left.find(T+'QUEEN'), pos.y), T)))
 		var i = 1
 		while path_left.find(T+'QUEEN') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x - (path_left.find(T+'QUEEN') - i), pos.y))))
 			i = i + 1
-	
+
 	if (T+'BISHOP' in path_up_right):
 		InCheck.append(not(in_check(Vector2(pos.x  + path_up_right.find(T+'BISHOP'), pos.y + path_up_right.find(T+'BISHOP')), T)))
 		var i = 1
 		while path_up_right.find(T+'BISHOP') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x + (path_up_right.find(T+'BISHOP') - i), pos.y + (path_up_right.find(T+'BISHOP') - i)))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_up_right):
 		InCheck.append(not(in_check(Vector2(pos.x  + path_up_right.find(T+'QUEEN'), pos.y + path_up_right.find(T+'QUEEN')), T)))
 		var i = 1
 		while path_up_right.find(T+'QUEEN') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x + (path_up_right.find(T+'QUEEN') - i), pos.y + (path_up_right.find(T+'QUEEN') - i)))))
 			i = i + 1
-	
+
 	if (T+'BISHOP' in path_up_left):
 		InCheck.append(not(in_check(Vector2(pos.x  - path_up_left.find(T+'BISHOP'), pos.y + path_up_left.find(T+'BISHOP')), T)))
 		var i = 1
 		while path_up_left.find(T+'BISHOP') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x - (path_up_left.find(T+'BISHOP') - i), pos.y + (path_up_left.find(T+'BISHOP') - i)))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_up_left):
 		InCheck.append(not(in_check(Vector2(pos.x  - path_up_left.find(T+'QUEEN'), pos.y + path_up_left.find(T+'QUEEN')), T)))
 		var i = 1
 		while path_up_left.find(T+'QUEEN') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x - (path_up_left.find(T+'QUEEN') - i), pos.y + (path_up_left.find(T+'QUEEN') - i)))))
 			i = i + 1
-	
+
 	if (T+'BISHOP' in path_down_right):
 		InCheck.append(not(in_check(Vector2(pos.x  + path_down_right.find(T+'BISHOP'), pos.y - path_down_right.find(T+'BISHOP')), T)))
 		var i = 1
 		while path_down_right.find(T+'BISHOP') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x + (path_down_right.find(T+'BISHOP') - i), pos.y - (path_down_right.find(T+'BISHOP') - i)))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_down_right):
 		InCheck.append(not(in_check(Vector2(pos.x  + path_down_right.find(T+'QUEEN'), pos.y - path_down_right.find(T+'QUEEN')), T)))
 		var i = 1
 		while path_down_right.find(T+'QUEEN') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x + (path_down_right.find(T+'QUEEN') - i), pos.y - (path_down_right.find(T+'QUEEN') - i)))))
 			i = i + 1
-	
+
 	if (T+'BISHOP' in path_down_left):
 		InCheck.append(not(in_check(Vector2(pos.x  - path_down_left.find(T+'BISHOP'), pos.y - path_down_left.find(T+'BISHOP')), T)))
 		var i = 1
 		while path_down_left.find(T+'BISHOP') - i > 0:
 			InCheck.append(not(block_path(Vector2(pos.x - (path_down_left.find(T+'BISHOP') - i), pos.y - (path_down_left.find(T+'BISHOP') - i)))))
 			i = i + 1
-	
+
 	if (T+'QUEEN' in path_down_left):
 		InCheck.append(not(in_check(Vector2(pos.x  - path_down_left.find(T+'QUEEN'), pos.y - path_down_left.find(T+'QUEEN')), T)))
 		var i = 1
@@ -719,7 +710,7 @@ func in_checkmate(pos, turn):
 			InCheck.append(not(block_path(Vector2(pos.x - (path_down_left.find(T+'QUEEN') - i), pos.y - (path_down_left.find(T+'QUEEN') - i)))))
 			i = i + 1
 	
-	if InCheck.count(true) == len(InCheck) and len(InCheck) > 1:
+	if InCheck.count(true) == len(InCheck) and len(InCheck) > 0:
 		return true
 	else:
 		return false
@@ -839,18 +830,18 @@ func block_path(pos : Vector2):
 		if (i != null) and (T+'KNIGHT' in i):
 			return true
 	
-	var cross = [path_up, path_down, path_right, path_left]
+	var cross = [path_up, path_down]
 	
-	for path in cross:
+	if white_turn:
+		var path = cross[1]
 		if (len(path)>1) and (path[1] != null) and (path[1] == T+'PAWN'):
 			return true
-	
-	if white_turn and (pos.y == 1):
-		var path = cross[0]
 		if (len(path)>2) and (path[2] != null) and (path[2] == T+'PAWN'):
 			return true
 	if not(white_turn):
-		var path = cross[1]
+		var path = cross[0]
+		if (len(path)>1) and (path[1] != null) and (path[1] == T+'PAWN'):
+			return true
 		if (len(path)>2) and (path[2] != null) and (path[2] == T+'PAWN'):
 			return true
 
