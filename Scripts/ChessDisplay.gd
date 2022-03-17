@@ -1,5 +1,9 @@
 extends Node2D
 
+# TO DO
+## Castling
+## Replay system
+
 # Mouse cursors
 onready var mouse = $Sprites/MouseCursor
 const cursor = preload("res://Assets/Others/item_2_flip.png")
@@ -249,6 +253,7 @@ func choose_path():
 		if movement_occured:
 			white_turn = not(white_turn)
 		hide_tileset(tileset)
+		hide_tileset(mineset)
 
 func piece_path(selected_type, selected_piece, pos):
 	hide_tileset(tileset)
@@ -431,8 +436,10 @@ func king_path(selected_type, pos):
 	
 	for posI in path:
 		if inside_grid(posI) and not(in_check(posI, turn)):
-			if (piece_type[posI.x][posI.y] == null) or (piece_type[posI.x][posI.y] == 'MINE') or (('B_' in piece_type[posI.x][posI.y]) and ('W_' in selected_type)) or (('W_' in piece_type[posI.x][posI.y]) and ('B_' in selected_type)):
+			if (piece_type[posI.x][posI.y] == null) or (('B_' in piece_type[posI.x][posI.y]) and ('W_' in selected_type)) or (('W_' in piece_type[posI.x][posI.y]) and ('B_' in selected_type)):
 				tileset[posI.x][posI.y].show()
+		if inside_grid(posI) and (piece_type[posI.x][posI.y] == 'MINE'):
+			mineset[posI.x][posI.y].show()
 	
 	var posKside = Vector2(pos.x+2, pos.y); var posQside = Vector2(pos.x-3, pos.y)
 	
@@ -710,6 +717,15 @@ func in_checkmate(pos, turn):
 			InCheck.append(not(block_path(Vector2(pos.x - (path_down_left.find(T+'QUEEN') - i), pos.y - (path_down_left.find(T+'QUEEN') - i)))))
 			i = i + 1
 	
+	if (T+'KNIGHT' in path_knight):
+		var p = path_knight.find(T+'KNIGHT')
+		var v
+		if p == 0 : v = Vector2(2,1);  if p == 1 : v = Vector2(2,-1)
+		if p == 2 : v = Vector2(-2,1); if p == 3 : v = Vector2(-2,-1)
+		if p == 4 : v = Vector2(1,2);  if p == 5 : v = Vector2(1,-2)
+		if p == 6 : v = Vector2(1,-2); if p == 7 : v = Vector2(-1,-2)
+		InCheck.append(not(in_check(pos + v, T)))
+	
 	if InCheck.count(true) == len(InCheck) and len(InCheck) > 0:
 		return true
 	else:
@@ -847,7 +863,7 @@ func block_path(pos : Vector2):
 
 func inCheck_king(pos, i,j, turn):
 	if inside_grid(pos + Vector2(i, j)):
-		if (piece_type[pos.x + i][pos.y + j] == null) or (piece_type[pos.x + i][pos.y + j] == 'MINE'):
+		if (piece_type[pos.x + i][pos.y + j] == null):
 			if in_check(pos +  Vector2(i, j), turn):
 				return true
 			return false
