@@ -1,5 +1,8 @@
 # Mines ans Shields
-paste here
+## Mine Example
+![mine_example](https://user-images.githubusercontent.com/97707320/158884623-5d4fabe1-9082-4bbd-ab91-14cddf34763d.gif)
+
+## Shield Example
 
 # Pawn Promotion
 ![pawn_promotion](https://user-images.githubusercontent.com/97707320/158883047-6127cc57-48ee-4a6d-8360-37f83992732d.gif)
