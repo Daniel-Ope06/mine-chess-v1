@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Assets/Board & Notation/Pixel Art Wooden Fonts (dark_brown-transparent).png" type="Texture" id=1]
+
+[node name="NotationSymbol" type="Sprite"]
+scale = Vector2( 0.77, 0.77 )
+texture = ExtResource( 1 )
+hframes = 12
+vframes = 6

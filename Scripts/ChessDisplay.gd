@@ -47,6 +47,8 @@ const piece_textures = [
 	preload("res://Assets/Pieces/White/white_queen.png")
 ]
 
+const chess_notation = preload("res://Chess Pieces/NotationSymbol.tscn")
+
 var piece_object = []
 var piece_type = []
 var tileset = []
@@ -80,7 +82,7 @@ onready var shield_number = $GoldSysten/PopUpBook/Numbers/ShieldNumber
 var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING':0, 'MINE':3, 'SHIELD':5}
 var button_frame = {'0':27, '1':5, '2':6, '3':7, '4':8, '5':9, '6':15, '7':16, '8':17, '9':18, '10':19} #score:frame
 
-# Replay & Undo system
+# TODO: Replay system
 # W_A1_move; B_A1_move | W_B2_kill; B_B2_kill | W_C3_explode; B_C3_explode | W_D4_shield; B_D4_shield
 #var notation_dict = {'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7}
 var notation = ['A','B','C','D','E','F','G','H']
@@ -97,6 +99,10 @@ func _ready() -> void:
 	piece_type = build_2D_array()
 	spawn_black_pieces()
 	spawn_white_pieces()
+	
+	# Notations
+	spawn_letters()
+	spawn_numbers()
 	
 	# Tile Sets
 	tileset = build_2D_array()
@@ -195,6 +201,23 @@ func spawn_white_pieces():
 	spawn_piece(10, 'W_KING', Vector2(4,0))
 	spawn_piece(11, 'W_QUEEN', Vector2(3,0))
 
+func spawn_notation(frame: int, pixel_position: Vector2):
+	var symbol= chess_notation.instance()
+	$Sprites/Notation.add_child(symbol)
+	symbol.position = pixel_position
+	symbol.frame = frame
+
+func spawn_letters():
+	var pos = Vector2(-112, 140)
+	for i in range(8):
+		spawn_notation(i, pos)
+		pos = pos + Vector2(32,0)
+
+func spawn_numbers():
+	var pos = Vector2(138, 112)
+	for i in range(26,34):
+		spawn_notation(i, pos)
+		pos = pos + Vector2(0,-32)
 
 # Build tiles
 func build_tileset(type, set):
