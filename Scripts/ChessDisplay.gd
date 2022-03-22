@@ -898,34 +898,6 @@ func inCheck_king(pos, i,j, turn):
 				return true
 			return false
 
-func can_castle(pos, Xside):
-	var Castle = []
-	var posXside; var turn
-	var i
-	if Xside == 'Kside':
-		posXside = Vector2(pos.x+2, pos.y)
-		i = 1
-	if Xside == 'Qside':
-		posXside = Vector2(pos.x-3, pos.y)
-		i = -1
-	
-	if white_turn:
-		turn = 'W_'
-	if not(white_turn):
-		turn = 'B_'
-	
-	while pos != posXside:
-		pos = pos + Vector2(i,0)
-		if not(in_check(pos, turn)) and piece_object[pos.x][pos.y] == null:
-			Castle.append(true)
-		else:
-			Castle.append(false)
-	
-	if Castle.count(true) == len(Castle):
-		return true
-	else:
-		return false
-
 func disable(node):
 		node.hide()
 		node.set_process(false)
