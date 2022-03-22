@@ -140,7 +140,6 @@ func _process(_delta) -> void:
 	display_numbers(); update_numbers()
 	disable_btn()
 	display_CheckAndCheckmate()
-	print(journal)
 
 
 # Grid System
