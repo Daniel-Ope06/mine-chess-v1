@@ -1,7 +1,6 @@
 extends Node2D
 
 # TO DO
-## Castling
 ## Replay system
 
 # Mouse cursors
@@ -83,10 +82,14 @@ var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING'
 var button_frame = {'0':27, '1':5, '2':6, '3':7, '4':8, '5':9, '6':15, '7':16, '8':17, '9':18, '10':19} #score:frame
 
 # TODO: Replay system
-# W_A1_move; B_A1_move | W_B2_kill; B_B2_kill | W_C3_explode; B_C3_explode | W_D4_shield; B_D4_shield
-#var notation_dict = {'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7}
-var notation = ['A','B','C','D','E','F','G','H']
-var replay = []
+## Notation rules
+# King : K, Queen : Q, Rook : R, Knight : N, Bishop : B, Pawn : '', Mine : M, Shield : S
+# Mine placement : Mc3; Shield placemment : SQe4, Se4
+# Move piece: Ng1-f3, e4-e5; Kill piece : Nxg1-f3, xe4-d5; Mine kill : Mxc3
+# Check: +; Checkmate: #
+var piece_notation = {'KING':'K', 'QUEEN':'Q', 'ROOK':'R', 'KNIGHT':'N', 'BISHOP':'B', 'PAWN':'', 'MINE':'M', 'SHIELD':'S'}
+var pos_notation = ['a','b','c','d','e','f','g','h']
+var journal = []
 
 
 
@@ -137,6 +140,7 @@ func _process(_delta) -> void:
 	display_numbers(); update_numbers()
 	disable_btn()
 	display_CheckAndCheckmate()
+	print(journal)
 
 
 # Grid System
@@ -251,35 +255,46 @@ func choose_path():
 	if Input.is_action_just_pressed("ui_right_click") and controlling and (mouse.texture == cursor):
 		final_click = get_global_mouse_position()
 		target = pixel_to_grid(final_click)
+		var notation
 		
 		if inside_grid(target) and controlling:
 			controlling = false
 			var target_piece = piece_object[target.x][target.y]
 			var target_type = piece_type[target.x][target.y]
 			if tileset[target.x][target.y].visible:
+				var piece = piece_notation[selected_type.substr(2,len(selected_type))]
+				
 				# move to empty tile
 				if target_type == null:
 					move_piece(selected_type, selected_piece, pos, target)
+					notation = piece + pos_notation[pos.x] + str(pos.y+1) + '-' + pos_notation[target.x] + str(target.y+1)
 					
 				# kill enemy
 				if target_type != null and target_type != 'MINE':
 					kill_enemy(selected_type, selected_piece, target_piece, pos, target)
 					gold_count(target_type, selected_type)
+					notation = piece + 'x' + pos_notation[pos.x] + str(pos.y+1) + '-' + pos_notation[target.x] + str(target.y+1)
 					movement_occured = true
+				
 				if target_type == 'MINE':
 					move_piece(selected_type, selected_piece, pos, target)
+					var x = ''
 					if selected_piece.get_color() != Color(1,1,0.4,1):
 						gold_count(target_type, selected_type)
+						x = 'x'
 					stepped_on_mine(target, selected_piece, selected_type)
+					notation = piece_notation['MINE'] +  x + pos_notation[pos.x] + str(pos.y+1) + '-' + pos_notation[target.x] + str(target.y+1)
 					movement_occured = true
-			
+		
 		if movement_occured:
 			white_turn = not(white_turn)
+			journal.append(notation)
 		hide_tileset(tileset)
 		hide_tileset(mineset)
 
 func piece_path(selected_type, selected_piece, pos):
 	hide_tileset(tileset)
+	hide_tileset(mineset)
 	
 	if selected_piece != null:
 		pawn_path(selected_type, pos)
@@ -449,13 +464,11 @@ func king_path(selected_type, pos):
 	var pos7 = Vector2(pos.x, pos.y-1); var pos8 = Vector2(pos.x, pos.y+1)
 	var path = [pos1,pos2,pos3,pos4,pos5,pos6,pos7,pos8]
 	
-	var turn; var Kpos
+	var turn
 	if white_turn:
 		turn = 'W_'
-		Kpos = Vector2(4,0)
 	if not(white_turn):
 		turn = 'B_'
-		Kpos = Vector2(4,7)
 	
 	for posI in path:
 		if inside_grid(posI) and not(in_check(posI, turn)):
@@ -463,15 +476,6 @@ func king_path(selected_type, pos):
 				tileset[posI.x][posI.y].show()
 		if inside_grid(posI) and (piece_type[posI.x][posI.y] == 'MINE'):
 			mineset[posI.x][posI.y].show()
-	
-	var posKside = Vector2(pos.x+2, pos.y); var posQside = Vector2(pos.x-3, pos.y)
-	
-	if (pos == Kpos):
-		if inside_grid(posKside) and can_castle(pos, 'Kside'):
-			tileset[posKside.x][posKside.y].show()
-		if inside_grid(posQside) and can_castle(pos, 'Qside'):
-			tileset[posQside.x][posQside.y].show()
-
 
 
 # Movement
@@ -579,12 +583,12 @@ func in_check(pos, turn):
 	
 	var all_paths = [path_up, path_down, path_right, path_left, path_up_right, path_up_left, path_down_right, path_down_left]
 
-	if white_turn:
+	if not(white_turn):
 		for i in range(4,6):
 			var path = all_paths[i]
 			if (len(path)>1) and (path[1] != null) and (T+'PAWN' in path[1]):
 				return true
-	if not(white_turn):
+	if white_turn:
 		for i in range(6,8):
 			var path = all_paths[i]
 			if (len(path)>1) and (path[1] != null) and (T+'PAWN' in path[1]):
@@ -766,8 +770,12 @@ func display_CheckAndCheckmate():
 	if (king_pos != null):
 		if in_check(king_pos, turn) and not(in_checkmate(king_pos, turn)):
 			mineset[king_pos.x][king_pos.y].show()
+			if journal[-1] != '+':
+				journal.append('+')
 		if in_check(king_pos, turn) and in_checkmate(king_pos, turn):
 			shieldset[king_pos.x][king_pos.y].show()
+			if journal[-1] != '#':
+				journal.append('#')
 			yield(get_tree().create_timer(2.0), "timeout")
 			var game_over = gameOver.instance()
 			add_child(game_over)
@@ -964,6 +972,8 @@ func set_mine():
 				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 				hide_tileset(mineset)
 				piece_type[mine_pos.x][mine_pos.y] = 'MINE'
+				var notation = piece_notation['MINE'] + pos_notation[mine_pos.x] + str(mine_pos.y+1)
+				journal.append(notation)
 			
 			mine = mine - 1
 			var frame = button_frame[str(mine)]
@@ -1006,6 +1016,8 @@ func set_shield():
 				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 				hide_tileset(shieldset)
 				piece_object[shield_pos.x][shield_pos.y].show_shield()
+				var notation = piece_notation['SHIELD'] + pos_notation[shield_pos.x] + str(shield_pos.y+1)
+				journal.append(notation)
 			
 			shield = shield - 1
 			var frame = button_frame[str(shield)]
@@ -1125,6 +1137,7 @@ func update_numbers():
 		black_gold = gold
 		black_mine = mine
 		black_shield = shield
+
 
 
 # Buttons
