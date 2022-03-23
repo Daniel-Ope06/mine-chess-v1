@@ -69,6 +69,7 @@ var controlling = false; var movement_occured = false
 var mine_control = false
 var white_turn = true
 var pop_up_books = false
+var is_paused = false
 
 
 # Gold system
@@ -217,7 +218,7 @@ func spawn_letters():
 		pos = pos + Vector2(32,0)
 
 func spawn_numbers():
-	var pos = Vector2(138, 112)
+	var pos = Vector2(-138, 112)
 	for i in range(26,34):
 		spawn_notation(i, pos)
 		pos = pos + Vector2(0,-32)
@@ -778,17 +779,18 @@ func display_CheckAndCheckmate():
 			yield(get_tree().create_timer(2.0), "timeout")
 			var game_over = gameOver.instance()
 			add_child(game_over)
+			get_tree().paused = true
 			$CameraLarge.current = true
 			mouse.switch_cursor(cursor, Vector2(2,2), Vector2(-7,-7))
-			game_over.set_winner(not(white_turn))
-			var disable = [
-				$Sprites/Background, $Sprites/ChessBoard,
-				$PawnPromotion, $GoldSysten, $ChessPieces,
-				$CameraSmall
-			]
-			
-			for node in disable:
-				disable(node)
+#			game_over.set_winner(not(white_turn))
+#			var disable = [
+#				$Sprites/Background, $Sprites/ChessBoard,
+#				$PawnPromotion, $GoldSysten, $ChessPieces,
+#				$CameraSmall
+#			]
+#
+#			for node in disable:
+#				disable(node)
 		
 		if movement_occured:
 			hide_tileset(mineset)
@@ -902,7 +904,6 @@ func disable(node):
 		node.hide()
 		node.set_process(false)
 		node.set_process_input(false)
-
 
 # Mine & Gold System
 func gold_popup():	
@@ -1111,6 +1112,7 @@ func update_numbers():
 
 
 
+
 # Buttons
 ## Promotionn Buttons
 func _on_W_QueenBtn_pressed() -> void:
@@ -1202,3 +1204,4 @@ func _on_RightShieldBtn_pressed() -> void:
 
 func _on_LeftShieldBtn_pressed() -> void:
 	arrow_action = '-SHIELD'
+

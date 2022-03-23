@@ -4,6 +4,7 @@
 [ext_resource path="res://Assets/Others/item_2_flip.png" type="Texture" id=2]
 
 [node name="MouseCursor" type="Sprite"]
+pause_mode = 2
 texture = ExtResource( 2 )
 centered = false
 script = ExtResource( 1 )
