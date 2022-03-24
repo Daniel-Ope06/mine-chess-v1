@@ -1,16 +1,18 @@
 # Gameplay
 ## Mine Example
-![mine_example](https://user-images.githubusercontent.com/97707320/158884623-5d4fabe1-9082-4bbd-ab91-14cddf34763d.gif)
+![UI-mine](https://user-images.githubusercontent.com/97707320/159814033-80fdc64b-f6f2-45ab-8069-54a2213c6cb7.gif)
 
 ## Shield Example
-![shield_example](https://user-images.githubusercontent.com/97707320/158886226-f96140c1-304a-40af-8ca9-7be22e2f493e.gif)
+![UI-shield](https://user-images.githubusercontent.com/97707320/159814764-75a42963-c01f-4c1d-91f0-9eb63c34754d.gif)
 
 ## Pawn Promotion
-![pawn_promotion](https://user-images.githubusercontent.com/97707320/158883047-6127cc57-48ee-4a6d-8360-37f83992732d.gif)
+![UI-promotion](https://user-images.githubusercontent.com/97707320/159816319-ddb291d0-237a-43df-923c-a8589fbe49f0.gif)
 
-## Mine Chess Menu
-![UI-2](https://user-images.githubusercontent.com/97707320/158878571-28360a18-dd0a-4187-9bec-f750a3a895ac.png)
+## Check
+![UI-check](https://user-images.githubusercontent.com/97707320/159817220-4a889993-172d-4b5b-810d-9946cebc4d48.gif)
 
-# Updates
-## Current Board UI
-![UI-1](https://user-images.githubusercontent.com/97707320/159165543-8c77f945-5738-430a-a7e0-a660d93c43ab.png)
+## Main Menu
+![UI-menu](https://user-images.githubusercontent.com/97707320/159803876-f88b71f4-a564-40fd-b650-5adb1d6a65b9.gif)
+
+## Chessboard
+![UI-Board](https://user-images.githubusercontent.com/97707320/159796775-405811eb-ed1d-4cfb-bf8a-b8344497169a.png)
