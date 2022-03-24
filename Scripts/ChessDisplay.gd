@@ -76,7 +76,7 @@ var is_paused = false
 var black_gold = 9; var white_gold = 9
 var black_mine = 1; var white_mine = 1
 var black_shield = 1; var white_shield = 1
-var arrow_action
+var arrow_action; var shield_color = Color(0.878431, 0.733333, 0.388235)
 onready var mine_number = $GoldSysten/PopUpBook/Numbers/MineNumber
 onready var shield_number = $GoldSysten/PopUpBook/Numbers/ShieldNumber
 var piece_value = {'PAWN':1, 'KNIGHT':3, 'BISHOP':3, 'ROOK':5, 'QUEEN':9, 'KING':0, 'MINE':3, 'SHIELD':5}
@@ -279,7 +279,7 @@ func choose_path():
 				if target_type == 'MINE':
 					move_piece(selected_type, selected_piece, pos, target)
 					var x = ''
-					if selected_piece.get_color() != Color(1,1,0.4,1):
+					if selected_piece.get_color() != shield_color:
 						gold_count(target_type, selected_type)
 						x = 'x'
 					stepped_on_mine(target, selected_piece, selected_type)
@@ -510,7 +510,7 @@ func stepped_on_mine(target, selected_piece, selected_type):
 		piece_type[target.x][target.y] = null
 		piece_object[target.x][target.y] = null
 	
-	if selected_piece.get_color() == Color(1,1,0.4,1):
+	if selected_piece.get_color() == shield_color:
 		yield(get_tree().create_timer(0.6), "timeout")
 		selected_piece.explode()
 		yield(get_tree().create_timer(1.0), "timeout")
