@@ -12,3 +12,5 @@ func _ready() -> void:
 func _on_RestartBtn_pressed() -> void:
 	get_tree().change_scene("res://UI/ChessDisplay.tscn")
 
+func _on_QuitBtn_pressed() -> void:
+	get_tree().quit()

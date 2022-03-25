@@ -47,6 +47,7 @@ const piece_textures = [
 ]
 
 const chess_notation = preload("res://Chess Pieces/NotationSymbol.tscn")
+const replay_path = "user://save.txt"
 
 var piece_object = []
 var piece_type = []
@@ -767,33 +768,24 @@ func display_CheckAndCheckmate():
 		king_pos = find_index('B_KING')
 		turn = 'B_'
 	
-	if (king_pos != null):
-		if in_check(king_pos, turn) and not(in_checkmate(king_pos, turn)):
-			mineset[king_pos.x][king_pos.y].show()
-			if journal[-1] != '+':
-				journal.append('+')
-		if in_check(king_pos, turn) and in_checkmate(king_pos, turn):
-			shieldset[king_pos.x][king_pos.y].show()
-			if journal[-1] != '#':
-				journal.append('#')
-			yield(get_tree().create_timer(2.0), "timeout")
-			var game_over = gameOver.instance()
-			add_child(game_over)
-			get_tree().paused = true
-			$CameraLarge.current = true
-			mouse.switch_cursor(cursor, Vector2(2,2), Vector2(-7,-7))
-#			game_over.set_winner(not(white_turn))
-#			var disable = [
-#				$Sprites/Background, $Sprites/ChessBoard,
-#				$PawnPromotion, $GoldSysten, $ChessPieces,
-#				$CameraSmall
-#			]
-#
-#			for node in disable:
-#				disable(node)
-		
-		if movement_occured:
-			hide_tileset(mineset)
+	if in_check(king_pos, turn) and not(in_checkmate(king_pos, turn)):
+		mineset[king_pos.x][king_pos.y].show()
+		if journal[-1] != '+':
+			journal.append('+')
+	
+	if in_check(king_pos, turn) and in_checkmate(king_pos, turn):
+		shieldset[king_pos.x][king_pos.y].show()
+		$PauseMenu.set_process_unhandled_input(false)
+		if journal[-1] != '#':
+			journal.append('#')
+		yield(get_tree().create_timer(1.0), "timeout")
+		get_tree().paused = true
+		$GameOver.set_winner(not(white_turn))
+		$GameOver.visible = true
+	
+	save_replay()
+	if movement_occured:
+		hide_tileset(mineset)
 
 func find_index(piece):
 	for i in range(piece_type.size()):
@@ -900,10 +892,13 @@ func inCheck_king(pos, i,j, turn):
 				return true
 			return false
 
-func disable(node):
-		node.hide()
-		node.set_process(false)
-		node.set_process_input(false)
+func save_replay():
+	var replay = File.new()
+	var error = replay.open(replay_path, File.WRITE)
+	if error == OK:
+		replay.store_var(journal)
+		replay.close()
+
 
 # Mine & Gold System
 func gold_popup():	

@@ -4,12 +4,12 @@
 [ext_resource path="res://Assets/Menu/Logo Spritesheet.png" type="Texture" id=2]
 [ext_resource path="res://Scripts/MainMenu.gd" type="Script" id=3]
 [ext_resource path="res://UI/MouseCursor.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Menu/Buttons/Quit_0.png" type="Texture" id=5]
 [ext_resource path="res://Assets/Menu/Buttons/Restart_0.png" type="Texture" id=6]
 [ext_resource path="res://Assets/Menu/Buttons/Restart_1.png" type="Texture" id=7]
 [ext_resource path="res://Assets/Menu/Buttons/Controls_0.png" type="Texture" id=8]
 [ext_resource path="res://Assets/Menu/Buttons/Controls_1.png" type="Texture" id=9]
-[ext_resource path="res://Assets/Menu/Buttons/Settings_0.png" type="Texture" id=10]
-[ext_resource path="res://Assets/Menu/Buttons/Settings_1.png" type="Texture" id=11]
+[ext_resource path="res://Assets/Menu/Buttons/Quit_1.png" type="Texture" id=10]
 
 [sub_resource type="Animation" id=1]
 resource_name = "Loop"
@@ -75,12 +75,12 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SettingsBtn" type="TextureButton" parent="VBoxContainer"]
+[node name="QuitBtn" type="TextureButton" parent="VBoxContainer"]
 margin_top = 124.0
 margin_right = 126.0
 margin_bottom = 156.0
-texture_normal = ExtResource( 10 )
-texture_hover = ExtResource( 11 )
+texture_normal = ExtResource( 5 )
+texture_hover = ExtResource( 10 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -96,6 +96,6 @@ frame = 10
 anims/Loop = SubResource( 1 )
 
 [node name="MouseCursor" parent="." instance=ExtResource( 4 )]
-position = Vector2( 466, 218 )
 
 [connection signal="pressed" from="VBoxContainer/RestartBtn" to="." method="_on_RestartBtn_pressed"]
+[connection signal="pressed" from="VBoxContainer/QuitBtn" to="." method="_on_QuitBtn_pressed"]

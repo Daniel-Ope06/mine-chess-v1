@@ -17,6 +17,6 @@ func set_is_paused(value):
 func _on_ResumeBtn_pressed() -> void:
 	self.is_paused = false
 
-func _on_QuitBtn_pressed() -> void:
+func _on_HomeBtn_pressed() -> void:
 	get_tree().paused = false
 	get_tree().change_scene("res://UI/MainMenu.tscn")

@@ -1,0 +1,107 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://UI/MouseCursor.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Assets/Transition Pics/Chess-Monochrome.jpg" type="Texture" id=2]
+[ext_resource path="res://Assets/Board & Notation/Board_Xtra_6.png" type="Texture" id=3]
+[ext_resource path="res://Scripts/ChessReplay.gd" type="Script" id=4]
+[ext_resource path="res://Assets/Menu/Buttons/right_1.png" type="Texture" id=5]
+[ext_resource path="res://Assets/Menu/Buttons/right_0.png" type="Texture" id=6]
+[ext_resource path="res://Assets/Menu/Buttons/skull_1.png" type="Texture" id=7]
+[ext_resource path="res://Assets/Menu/Buttons/skull_0.png" type="Texture" id=8]
+[ext_resource path="res://Assets/Menu/Buttons/skip_0.png" type="Texture" id=9]
+[ext_resource path="res://Assets/Menu/Buttons/skip_1.png" type="Texture" id=10]
+[ext_resource path="res://UI/PauseMenu.tscn" type="PackedScene" id=11]
+
+[node name="ChessReplay" type="Node2D"]
+script = ExtResource( 4 )
+
+[node name="CameraSmall" type="Camera2D" parent="."]
+current = true
+zoom = Vector2( 0.5, 0.5 )
+
+[node name="Sprites" type="Node2D" parent="."]
+
+[node name="Background" type="Sprite" parent="Sprites"]
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 2 )
+
+[node name="ChessBoard" type="Sprite" parent="Sprites"]
+scale = Vector2( 0.25, 0.25 )
+texture = ExtResource( 3 )
+
+[node name="MouseCursor" parent="Sprites" instance=ExtResource( 1 )]
+position = Vector2( 64, 32 )
+z_index = 500
+
+[node name="Notation" type="Node2D" parent="Sprites"]
+
+[node name="StepButtons" type="Node2D" parent="."]
+scale = Vector2( 0.5, 0.5 )
+
+[node name="MineBtn" type="TextureButton" parent="StepButtons"]
+margin_left = -16.0
+margin_top = -292.0
+margin_right = 17.0
+margin_bottom = -259.0
+texture_normal = ExtResource( 8 )
+texture_hover = ExtResource( 7 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NextBtn" type="TextureButton" parent="StepButtons"]
+margin_left = 32.0
+margin_top = -292.0
+margin_right = 65.0
+margin_bottom = -259.0
+texture_normal = ExtResource( 6 )
+texture_hover = ExtResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PrevBtn" type="TextureButton" parent="StepButtons"]
+margin_left = -64.0
+margin_top = -292.0
+margin_right = -31.0
+margin_bottom = -259.0
+texture_normal = ExtResource( 6 )
+texture_hover = ExtResource( 5 )
+flip_h = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EndBtn" type="TextureButton" parent="StepButtons"]
+margin_left = 80.0
+margin_top = -292.0
+margin_right = 113.0
+margin_bottom = -259.0
+texture_normal = ExtResource( 9 )
+texture_hover = ExtResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StartBtn" type="TextureButton" parent="StepButtons"]
+margin_left = -112.0
+margin_top = -292.0
+margin_right = -79.0
+margin_bottom = -259.0
+texture_normal = ExtResource( 9 )
+texture_hover = ExtResource( 10 )
+flip_h = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PauseMenu" parent="." instance=ExtResource( 11 )]
+visible = false
+position = Vector2( -123, -105 )
+scale = Vector2( 0.3, 0.3 )
+z_index = 100
+
+[node name="ChessPieces" type="Node2D" parent="."]
+
+[connection signal="pressed" from="StepButtons/MineBtn" to="." method="_on_MineBtn_pressed"]
+[connection signal="pressed" from="StepButtons/NextBtn" to="." method="_on_NextBtn_pressed"]
