@@ -553,6 +553,9 @@ func promote_to(promotion, chess_piece,  pos, sprite):
 	piece_object[pos.x][pos.y] = piece
 	piece_type[pos.x][pos.y] = promotion
 	piece_object[pos.x][pos.y].switch_texture(piece_textures[sprite])
+	
+	var notation = '*' + piece_notation[promotion.substr(2,len(promotion))]
+	journal.append(notation)
 
 func in_check(pos, turn):
 	var path_up = check_path(pos, Vector2(0, 1)); var path_down = check_path(pos, Vector2(0, -1))

@@ -6,6 +6,7 @@ const cursor = preload("res://Assets/Others/item_2_flip.png")
 var mouse_pos
 
 const mine_tile = preload("res://Chess Pieces/HighlightMine.tscn")
+const shield_tile = preload("res://Chess Pieces/HighlightShield.tscn")
 const chess_notation = preload("res://Chess Pieces/NotationSymbol.tscn")
 
 const chess_pieces = [
@@ -39,6 +40,7 @@ const piece_textures = [
 var piece_object = []
 var piece_type = []
 var mineset = []
+var shieldset = []
 
 # Each tile is 32 by 32
 var x_start = -112
@@ -49,9 +51,11 @@ var pos; var target
 var selected_piece; var target_piece
 var selected_type; var target_type
 var movement_occured = false; var skull = false
+var shield_color = Color(0.878431, 0.733333, 0.388235)
 var white_turn = true
 
 var piece_notation = {'K':'KING', 'Q':'QUEEN', 'R':'ROOK', 'N':'KNIGHT', 'B':'BISHOP', '':'PAWN', 'M':'MINE', 'S':'SHIELD'}
+var movable = ['K','Q','R','N','B']
 var pos_notation = ['a','b','c','d','e','f','g','h']
 const replay_path = "user://save.txt"
 var journal; var counter = 0
@@ -73,9 +77,11 @@ func _ready() -> void:
 	
 	# Tile Sets
 	mineset = build_2D_array()
+	shieldset = build_2D_array()
 	build_tileset(mine_tile, mineset)
+	build_tileset(shield_tile, shieldset)
 	hide_tileset(mineset)
-	
+	hide_tileset(shieldset)
 	
 	load_replay()
 	print(journal)
@@ -187,13 +193,55 @@ func move_piece(selected_type, selected_piece, pos, target):
 	update_array(selected_type, selected_piece, pos, target)
 	selected_piece.animate(grid_to_pixel(target))
 	#promotion_popup(selected_type, target)
-	movement_occured = true
+	white_turn = not(white_turn)
 
 func kill_enemy(selected_type, selected_piece, target_piece, pos, target):
 	update_array(selected_type, selected_piece, pos, target)
 	target_piece.queue_free()
 	selected_piece.animate(grid_to_pixel(target))
+	white_turn = not(white_turn)
 	#promotion_popup(selected_type, target)
+
+func stepped_on_mine(target, selected_piece, selected_type):
+	if selected_piece.get_color() == Color(1,1,1,1):
+		yield(get_tree().create_timer(0.6), "timeout")
+		selected_piece.explode()
+		yield(get_tree().create_timer(1.0), "timeout")
+		selected_piece.queue_free()
+		piece_type[target.x][target.y] = null
+		piece_object[target.x][target.y] = null
+	
+	if selected_piece.get_color() == shield_color:
+		yield(get_tree().create_timer(0.6), "timeout")
+		selected_piece.explode()
+		yield(get_tree().create_timer(1.0), "timeout")
+		piece_type[target.x][target.y] = selected_type
+		piece_object[target.x][target.y] = selected_piece
+
+func check_promotion(pos, target):
+	var T; var promotion; var piece
+	if target.y == 7:
+		if white_turn: T = 'W_'
+		if not(white_turn): T = 'B_'
+		
+		promotion = journal[counter+1]
+		piece = piece_notation[promotion[1]]
+		piece_type[target.x][target.y] = T+piece
+		
+		
+
+
+# Special functions
+func find_index(piece):
+	for i in range(piece_type.size()):
+		for j in range(piece_type.size()):
+			if piece_type[i][j] == piece:
+				return(Vector2(i,j))
+
+func king_pos():
+		if white_turn == true:
+			return find_index('W_KING')
+		return find_index('B_KING')
 
 
 # Replay System
@@ -204,37 +252,105 @@ func load_replay():
 		if error == OK:
 			journal = replay.get_var()
 			replay.close()
-		else:
-			print('error')
 
 func next_move():
 	var move = journal[counter]
 	var pos = Vector2(0,0)
 	var target = Vector2(0,0)
+	hide_tileset(mineset)
 	
 	# Mines
 	if move[0] == 'M':
 		# Mine placement
 		if not('x' in move):
-			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])
-			piece_type[pos.x][pos.y] = 'MINE'
+			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+			if len(move) == 3:
+				piece_type[pos.x][pos.y] = 'MINE'
+			if len(move) == 6:
+				target.x = pos_notation.find(move[4]); target.y = int(move[5])-1
+				selected_piece = piece_object[pos.x][pos.y]
+				selected_type = piece_type[pos.x][pos.y]
+				move_piece(selected_type, selected_piece, pos, target)
+				stepped_on_mine(target, selected_piece, selected_type)
 		
 		# Mine kill
-		if 'x' in move:
-			pos.x = pos_notation.find(move[2]); pos.y = int(move[3])
-			target.x = pos_notation.find(move[5]); target.y = int(move[6])
+		if ('x' in move):
+			pos.x = pos_notation.find(move[2]); pos.y = int(move[3])-1
+			target.x = pos_notation.find(move[5]); target.y = int(move[6])-1
 			
 			selected_piece = piece_object[pos.x][pos.y]
 			selected_type = piece_type[pos.x][pos.y]
 			
+			move_piece(selected_type, selected_piece, pos, target)
+			stepped_on_mine(target, selected_piece, selected_type)
+	
+	# Shield
+	if move[0] == 'S':
+		pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+		piece_object[pos.x][pos.y].show_shield()
+	
+	# Check
+	if move[0] == '+':
+		var king_pos = king_pos()
+		mineset[king_pos.x][king_pos.y].show()
+	
+	# Checkmate
+	if move[0] == '#':
+		var king_pos = king_pos()
+		shieldset[king_pos.x][king_pos.y].show()
+	
+	# Movement
+	if (move[0] in movable):
+		# Nomral move
+		if not('x' in move):
+			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+			target.x = pos_notation.find(move[4]); target.y = int(move[5])-1
+			
+			selected_piece = piece_object[pos.x][pos.y]
+			selected_type = piece_type[pos.x][pos.y]
+			move_piece(selected_type, selected_piece, pos, target)
 		
+		# Kill move
+		if 'x' in move:
+			pos.x = pos_notation.find(move[2]); pos.y = int(move[3])-1
+			target.x = pos_notation.find(move[5]); target.y = int(move[6])-1
+			
+			selected_piece = piece_object[pos.x][pos.y]
+			target_piece = piece_object[target.x][target.y]
+			selected_type = piece_type[pos.x][pos.y]
+			kill_enemy(selected_type, selected_piece, target_piece, pos, target)
+		
+		
+	
+	# Pawn movement
+	if (move[0] in pos_notation) or (move[0] == 'x'):
+		# Nomral move
+		if not('x' in move):
+			pos.x = pos_notation.find(move[0]); pos.y = int(move[1])-1
+			target.x = pos_notation.find(move[3]); target.y = int(move[4])-1
+			
+			selected_piece = piece_object[pos.x][pos.y]
+			selected_type = piece_type[pos.x][pos.y]
+			move_piece(selected_type, selected_piece, pos, target)
+		
+		# Kill move
+		if 'x' in move:
+			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+			target.x = pos_notation.find(move[4]); target.y = int(move[5])-1
+			
+			selected_piece = piece_object[pos.x][pos.y]
+			target_piece = piece_object[target.x][target.y]
+			selected_type = piece_type[pos.x][pos.y]
+			kill_enemy(selected_type, selected_piece, target_piece, pos, target)
+	
+	
 
 
 # Buttons
 func _on_NextBtn_pressed() -> void:
-	next_move()
-	counter = counter + 1
-	print(counter)
+	if counter < len(journal):
+		next_move()
+		counter = counter + 1
 
 func _on_MineBtn_pressed() -> void:
 	skull = not(skull)

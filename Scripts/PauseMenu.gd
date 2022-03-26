@@ -14,9 +14,13 @@ func set_is_paused(value):
 	get_tree().paused = is_paused
 	visible = is_paused
 
+# Buttons
 func _on_ResumeBtn_pressed() -> void:
 	self.is_paused = false
 
 func _on_HomeBtn_pressed() -> void:
 	get_tree().paused = false
 	get_tree().change_scene("res://UI/MainMenu.tscn")
+
+func _on_ReplayBtn_pressed() -> void:
+	get_tree().change_scene("res://UI/ChessReplay.tscn")
