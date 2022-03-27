@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/Menu/Buttons/Resume_0.png" type="Texture" id=1]
 [ext_resource path="res://Assets/Menu/Buttons/Resume_1.png" type="Texture" id=2]
@@ -6,8 +6,6 @@
 [ext_resource path="res://Assets/Menu/Buttons/Home_1.png" type="Texture" id=4]
 [ext_resource path="res://Assets/Others/frame01.png" type="Texture" id=5]
 [ext_resource path="res://Scripts/PauseMenu.gd" type="Script" id=6]
-[ext_resource path="res://Assets/Menu/Buttons/replay_1.png" type="Texture" id=7]
-[ext_resource path="res://Assets/Menu/Buttons/replay_0.png" type="Texture" id=8]
 
 [node name="PauseMenu" type="Node2D"]
 pause_mode = 2
@@ -34,7 +32,7 @@ scale = Vector2( 4, 4 )
 texture = ExtResource( 5 )
 
 [node name="Buttons" type="Node2D" parent="Background"]
-position = Vector2( -29, -30 )
+position = Vector2( -29, -25 )
 scale = Vector2( 0.5, 0.5 )
 
 [node name="ResumeBtn" type="TextureButton" parent="Background/Buttons"]
@@ -59,20 +57,5 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Replay" type="Node2D" parent="Background"]
-scale = Vector2( 0.5, 0.5 )
-
-[node name="ReplayBtn" type="TextureButton" parent="Background/Replay"]
-margin_left = -16.0
-margin_top = 32.0
-margin_right = 17.0
-margin_bottom = 65.0
-texture_normal = ExtResource( 8 )
-texture_hover = ExtResource( 7 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [connection signal="pressed" from="Background/Buttons/ResumeBtn" to="." method="_on_ResumeBtn_pressed"]
 [connection signal="pressed" from="Background/Buttons/HomeBtn" to="." method="_on_HomeBtn_pressed"]
-[connection signal="pressed" from="Background/Replay/ReplayBtn" to="." method="_on_ReplayBtn_pressed"]

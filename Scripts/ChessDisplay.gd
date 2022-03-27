@@ -916,6 +916,7 @@ func gold_popup():
 
 func place_mine():
 	if Input.is_action_just_pressed("ui_click") and (mouse.texture == mine_cursor):
+		hide_tileset(tileset)
 		var mine_click = get_global_mouse_position()
 		var mine_pos = pixel_to_grid(mine_click)
 		
@@ -944,10 +945,10 @@ func set_mine():
 				piece_type[mine_pos.x][mine_pos.y] = 'MINE'
 				var notation = piece_notation['MINE'] + pos_notation[mine_pos.x] + str(mine_pos.y+1)
 				journal.append(notation)
-			
-			mine = mine - 1
-			var frame = button_frame[str(mine)]
-			mine_number.set_frame(frame)
+				
+				mine = mine - 1
+				var frame = button_frame[str(mine)]
+				mine_number.set_frame(frame)
 			
 			if white_turn == true:
 				white_mine = mine
@@ -956,6 +957,7 @@ func set_mine():
 
 func place_shield():
 	if  Input.is_action_just_pressed("ui_click") and (mouse.texture == shield_cursor):
+		hide_tileset(tileset)
 		var shield_click = get_global_mouse_position()
 		var shield_pos = pixel_to_grid(shield_click)
 		
@@ -988,10 +990,10 @@ func set_shield():
 				piece_object[shield_pos.x][shield_pos.y].show_shield()
 				var notation = piece_notation['SHIELD'] + pos_notation[shield_pos.x] + str(shield_pos.y+1)
 				journal.append(notation)
-			
-			shield = shield - 1
-			var frame = button_frame[str(shield)]
-			shield_number.set_frame(frame)
+				
+				shield = shield - 1
+				var frame = button_frame[str(shield)]
+				shield_number.set_frame(frame)
 			
 			if white_turn == true:
 				white_shield = shield

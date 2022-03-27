@@ -21,6 +21,3 @@ func _on_ResumeBtn_pressed() -> void:
 func _on_HomeBtn_pressed() -> void:
 	get_tree().paused = false
 	get_tree().change_scene("res://UI/MainMenu.tscn")
-
-func _on_ReplayBtn_pressed() -> void:
-	get_tree().change_scene("res://UI/ChessReplay.tscn")
