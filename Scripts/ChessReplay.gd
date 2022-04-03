@@ -55,8 +55,10 @@ var shield_color = Color(0.878431, 0.733333, 0.388235)
 var white_turn = true
 
 var piece_notation = {'K':'KING', 'Q':'QUEEN', 'R':'ROOK', 'N':'KNIGHT', 'B':'BISHOP', '':'PAWN', 'M':'MINE', 'S':'SHIELD'}
-var movable = ['K','Q','R','N','B']
+var chess_piece = ['B_ROOK', 'B_KNIGHT', 'B_BISHOP', 'B_PAWN', 'B_KING', 'B_QUEEN', 'W_ROOK', 'W_KNIGHT', 'W_BISHOP', 'W_PAWN', 'W_KING', 'W_QUEEN']
+var piece_texture = ['B_ROOK', 'B_KNIGHT', 'B_BISHOP','B_QUEEN', 'W_ROOK', 'W_KNIGHT', 'W_BISHOP', 'W_QUEEN']
 var pos_notation = ['a','b','c','d','e','f','g','h']
+var movable = ['K','Q','R','N','B']
 const replay_path = "user://save.txt"
 var journal; var counter = 0
 
@@ -192,7 +194,6 @@ func update_array(selected_type, selected_piece, pos, target):
 func move_piece(selected_type, selected_piece, pos, target):
 	update_array(selected_type, selected_piece, pos, target)
 	selected_piece.animate(grid_to_pixel(target))
-	#promotion_popup(selected_type, target)
 	white_turn = not(white_turn)
 
 func kill_enemy(selected_type, selected_piece, target_piece, pos, target):
@@ -200,7 +201,6 @@ func kill_enemy(selected_type, selected_piece, target_piece, pos, target):
 	target_piece.queue_free()
 	selected_piece.animate(grid_to_pixel(target))
 	white_turn = not(white_turn)
-	#promotion_popup(selected_type, target)
 
 func stepped_on_mine(target, selected_piece, selected_type):
 	if selected_piece.get_color() == Color(1,1,1,1):
@@ -217,18 +217,6 @@ func stepped_on_mine(target, selected_piece, selected_type):
 		yield(get_tree().create_timer(1.0), "timeout")
 		piece_type[target.x][target.y] = selected_type
 		piece_object[target.x][target.y] = selected_piece
-
-func check_promotion(pos, target):
-	var T; var promotion; var piece
-	if target.y == 7:
-		if white_turn: T = 'W_'
-		if not(white_turn): T = 'B_'
-		
-		promotion = journal[counter+1]
-		piece = piece_notation[promotion[1]]
-		piece_type[target.x][target.y] = T+piece
-		
-		
 
 
 # Special functions
@@ -319,13 +307,11 @@ func next_move():
 			target_piece = piece_object[target.x][target.y]
 			selected_type = piece_type[pos.x][pos.y]
 			kill_enemy(selected_type, selected_piece, target_piece, pos, target)
-		
-		
 	
-	# Pawn movement
-	if (move[0] in pos_notation) or (move[0] == 'x'):
+	# Pawn movement and promotion
+	if (move[0] in pos_notation) or (move[0] == 'x') or (move[0] == '*'):
 		# Nomral move
-		if not('x' in move):
+		if (move[0] in pos_notation):
 			pos.x = pos_notation.find(move[0]); pos.y = int(move[1])-1
 			target.x = pos_notation.find(move[3]); target.y = int(move[4])-1
 			
@@ -334,7 +320,7 @@ func next_move():
 			move_piece(selected_type, selected_piece, pos, target)
 		
 		# Kill move
-		if 'x' in move:
+		if (move[0] == 'x'):
 			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
 			target.x = pos_notation.find(move[4]); target.y = int(move[5])-1
 			
@@ -342,8 +328,24 @@ func next_move():
 			target_piece = piece_object[target.x][target.y]
 			selected_type = piece_type[pos.x][pos.y]
 			kill_enemy(selected_type, selected_piece, target_piece, pos, target)
-	
-	
+		
+		# Promotion
+		if (move[0] == '*'):
+			var prev_move = journal[counter-1]
+			target.x = pos_notation.find(prev_move[-2]); target.y = int(prev_move[-1])-1
+			piece_object[target.x][target.y].switch_texture(null)
+			var T
+			if white_turn: T = 'B_'
+			if not(white_turn): T = 'W_'
+			var promotion = T + piece_notation[move[1]]
+			var cp = chess_piece.find(promotion)
+			var piece = chess_pieces[cp].instance()
+			var texture = piece_texture.find(promotion)
+			$ChessPieces.add_child(piece)
+			piece.position = grid_to_pixel(target)
+			piece_object[target.x][target.y] = piece
+			piece_type[target.x][target.y] = promotion
+			piece_object[target.x][target.y].switch_texture(piece_textures[texture])
 
 
 # Buttons
