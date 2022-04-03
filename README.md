@@ -22,3 +22,4 @@
 - Shareable chess notation sheet
 - Sound design
 - Visual signals/effects
+- Tutorial/Controls
