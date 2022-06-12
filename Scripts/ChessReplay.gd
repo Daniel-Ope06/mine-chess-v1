@@ -347,6 +347,22 @@ func next_move():
 			piece_type[target.x][target.y] = promotion
 			piece_object[target.x][target.y].switch_texture(piece_textures[texture])
 
+func prev_move():
+	var move = journal[counter]
+	var pos = Vector2(0,0)
+	var target = Vector2(0,0)
+	hide_tileset(mineset)
+	
+	# Pawn movement and promotion
+	if (move[0] in pos_notation) or (move[0] == 'x') or (move[0] == '*'):
+		# Nomral move
+		if (move[0] in pos_notation):
+			pos.x = pos_notation.find(move[0]); pos.y = int(move[1])-1
+			target.x = pos_notation.find(move[3]); target.y = int(move[4])-1
+			
+			selected_piece = piece_object[target.x][target.y]
+			selected_type = piece_type[target.x][target.y]
+			move_piece(selected_type, selected_piece, target, pos)
 
 # Buttons
 func _on_NextBtn_pressed() -> void:
@@ -354,6 +370,14 @@ func _on_NextBtn_pressed() -> void:
 		next_move()
 		counter = counter + 1
 
+func _on_PrevBtn_pressed() -> void:
+	if counter >= 0:
+		counter = counter - 1
+		prev_move()
+
 func _on_MineBtn_pressed() -> void:
 	skull = not(skull)
 	show_mines(skull)
+
+
+
