@@ -60,7 +60,7 @@ var piece_texture = ['B_ROOK', 'B_KNIGHT', 'B_BISHOP','B_QUEEN', 'W_ROOK', 'W_KN
 var pos_notation = ['a','b','c','d','e','f','g','h']
 var movable = ['K','Q','R','N','B']
 const replay_path = "user://save.txt"
-var journal; var counter = 0
+var journal; var counter = 0; var deaths = []
 
 
 func _ready() -> void:
@@ -242,6 +242,7 @@ func load_replay():
 			replay.close()
 
 func next_move():
+	print("next "+ journal[counter])
 	var move = journal[counter]
 	var pos = Vector2(0,0)
 	var target = Vector2(0,0)
@@ -268,6 +269,7 @@ func next_move():
 			
 			selected_piece = piece_object[pos.x][pos.y]
 			selected_type = piece_type[pos.x][pos.y]
+			deaths.append(piece_type[pos.x][pos.y])
 			
 			move_piece(selected_type, selected_piece, pos, target)
 			stepped_on_mine(target, selected_piece, selected_type)
@@ -306,6 +308,7 @@ func next_move():
 			selected_piece = piece_object[pos.x][pos.y]
 			target_piece = piece_object[target.x][target.y]
 			selected_type = piece_type[pos.x][pos.y]
+			deaths.append(piece_type[target.x][target.y])
 			kill_enemy(selected_type, selected_piece, target_piece, pos, target)
 	
 	# Pawn movement and promotion
@@ -327,6 +330,7 @@ func next_move():
 			selected_piece = piece_object[pos.x][pos.y]
 			target_piece = piece_object[target.x][target.y]
 			selected_type = piece_type[pos.x][pos.y]
+			deaths.append(piece_type[target.x][target.y])
 			kill_enemy(selected_type, selected_piece, target_piece, pos, target)
 		
 		# Promotion
@@ -348,14 +352,89 @@ func next_move():
 			piece_object[target.x][target.y].switch_texture(piece_textures[texture])
 
 func prev_move():
+	print("prev "+ journal[counter])
 	var move = journal[counter]
 	var pos = Vector2(0,0)
 	var target = Vector2(0,0)
 	hide_tileset(mineset)
 	
+	# Mines
+	if move[0] == 'M':
+		# Undo Mine placement
+		if not('x' in move):
+			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+			if len(move) == 3:
+				piece_type[pos.x][pos.y] = null
+			if len(move) == 6:
+				target.x = pos_notation.find(move[4]); target.y = int(move[5])-1
+				selected_piece = piece_object[target.x][target.y]
+				selected_type = piece_type[target.x][target.y]
+				selected_piece.show_shield()
+				move_piece(selected_type, selected_piece, target, pos)
+				piece_type[target.x][target.y] = 'MINE'
+		
+		# Undo Mine kill
+		if ('x' in move):
+			pos.x = pos_notation.find(move[2]); pos.y = int(move[3])-1
+			target.x = pos_notation.find(move[5]); target.y = int(move[6])-1
+			
+			var cp = chess_piece.find(deaths[-1])
+			var piece = chess_pieces[cp].instance()
+			$ChessPieces.add_child(piece)
+			piece.position = grid_to_pixel(target)
+			piece_object[target.x][target.y] = piece
+			piece_type[target.x][target.y] = deaths[-1]
+			deaths.pop_back()
+			selected_piece = piece_object[target.x][target.y]
+			selected_type = piece_type[target.x][target.y]
+			move_piece(selected_type, selected_piece, target, pos)
+	
+	# Undo Shield
+	if move[0] == 'S':
+		pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+		piece_object[pos.x][pos.y].remove_shield()
+	
+	# Undo Check
+	if move[0] == '+':
+		var king_pos = king_pos()
+		mineset[king_pos.x][king_pos.y].hide()
+	
+	# Undo Checkmate
+	if move[0] == '#':
+		var king_pos = king_pos()
+		shieldset[king_pos.x][king_pos.y].hide()
+	
+	# Movement
+	if (move[0] in movable):
+		# Undo Nomral move
+		if not('x' in move):
+			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+			target.x = pos_notation.find(move[4]); target.y = int(move[5])-1
+			
+			selected_piece = piece_object[target.x][target.y]
+			selected_type = piece_type[target.x][target.y]
+			move_piece(selected_type, selected_piece, target, pos)
+		
+		# Undo Kill move
+		if 'x' in move:
+			pos.x = pos_notation.find(move[2]); pos.y = int(move[3])-1
+			target.x = pos_notation.find(move[5]); target.y = int(move[6])-1
+			
+			selected_piece = piece_object[target.x][target.y]
+			selected_type = piece_type[target.x][target.y]
+			move_piece(selected_type, selected_piece, target, pos)
+			
+			var cp = chess_piece.find(deaths[-1])
+			var piece = chess_pieces[cp].instance()
+			$ChessPieces.add_child(piece)
+			piece.position = grid_to_pixel(target)
+			piece_object[target.x][target.y] = piece
+			piece_type[target.x][target.y] = deaths[-1]
+			deaths.pop_back()
+	
 	# Pawn movement and promotion
 	if (move[0] in pos_notation) or (move[0] == 'x') or (move[0] == '*'):
-		# Nomral move
+		# Undo Nomral move
 		if (move[0] in pos_notation):
 			pos.x = pos_notation.find(move[0]); pos.y = int(move[1])-1
 			target.x = pos_notation.find(move[3]); target.y = int(move[4])-1
@@ -363,21 +442,53 @@ func prev_move():
 			selected_piece = piece_object[target.x][target.y]
 			selected_type = piece_type[target.x][target.y]
 			move_piece(selected_type, selected_piece, target, pos)
+		
+		# Undo Kill move
+		if (move[0] == 'x'):
+			pos.x = pos_notation.find(move[1]); pos.y = int(move[2])-1
+			target.x = pos_notation.find(move[4]); target.y = int(move[5])-1
+			
+			selected_piece = piece_object[target.x][target.y]
+			selected_type = piece_type[target.x][target.y]
+			move_piece(selected_type, selected_piece, target, pos)
+			
+			var cp = chess_piece.find(deaths[-1])
+			var piece = chess_pieces[cp].instance()
+			$ChessPieces.add_child(piece)
+			piece.position = grid_to_pixel(target)
+			piece_object[target.x][target.y] = piece
+			piece_type[target.x][target.y] = deaths[-1]
+			deaths.pop_back()
+		
+		# Undo Promotion
+		if (move[0] == '*'):
+			var prev_move = journal[counter-1]
+			target.x = pos_notation.find(prev_move[-2]); target.y = int(prev_move[-1])-1
+			piece_object[target.x][target.y].switch_texture(null)
+			var T; var texture
+			if white_turn: T = 'B_'; texture = preload("res://Assets/Pieces/Black/black_pawn.png")
+			if not(white_turn): T = 'W_'; texture = preload("res://Assets/Pieces/White/white_pawn.png")
+			var promotion = T + piece_notation['']
+			var cp = chess_piece.find(promotion)
+			var piece = chess_pieces[cp].instance()
+			$ChessPieces.add_child(piece)
+			piece.position = grid_to_pixel(target)
+			piece_object[target.x][target.y] = piece
+			piece_type[target.x][target.y] = promotion
+			piece_object[target.x][target.y].switch_texture(texture)
 
 # Buttons
 func _on_NextBtn_pressed() -> void:
-	if counter < len(journal):
+	if counter < journal.size():
 		next_move()
 		counter = counter + 1
 
 func _on_PrevBtn_pressed() -> void:
-	if counter >= 0:
+	if counter > 0:
 		counter = counter - 1
 		prev_move()
 
 func _on_MineBtn_pressed() -> void:
 	skull = not(skull)
 	show_mines(skull)
-
-
 
