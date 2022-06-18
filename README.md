@@ -11,6 +11,9 @@
 ## Check
 ![UI-check](https://user-images.githubusercontent.com/97707320/159817220-4a889993-172d-4b5b-810d-9946cebc4d48.gif)
 
+## Replay System
+![replay_example](https://user-images.githubusercontent.com/97707320/174452739-5fd16b88-ce33-4320-8a06-476062f16cd6.gif)
+
 ## Main Menu
 ![UI-menu](https://user-images.githubusercontent.com/97707320/159803876-f88b71f4-a564-40fd-b650-5adb1d6a65b9.gif)
 
@@ -18,8 +21,6 @@
 ![UI-Board](https://user-images.githubusercontent.com/97707320/159796775-405811eb-ed1d-4cfb-bf8a-b8344497169a.png)
 
 # TO DO
-- Replay System
-- Shareable chess notation sheet
 - Sound design
 - Visual signals/effects
 - Tutorial/Controls
