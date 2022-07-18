@@ -22,5 +22,3 @@
 
 # TO DO
 - Sound design
-- Visual signals/effects
-- Tutorial/Controls
