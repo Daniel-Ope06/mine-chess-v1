@@ -97,5 +97,10 @@ anims/Loop = SubResource( 1 )
 
 [node name="MouseCursor" parent="." instance=ExtResource( 4 )]
 
+[node name="Instructions" type="Node2D" parent="."]
+visible = false
+scale = Vector2( 2.5, 2.5 )
+
 [connection signal="pressed" from="VBoxContainer/RestartBtn" to="." method="_on_RestartBtn_pressed"]
+[connection signal="pressed" from="VBoxContainer/ControlsBtn" to="." method="_on_ControlsBtn_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitBtn" to="." method="_on_QuitBtn_pressed"]
