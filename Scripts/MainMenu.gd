@@ -29,13 +29,18 @@ func _ready() -> void:
 	spawn_sentence(instruction_2, line2)
 
 func _on_RestartBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
+	yield(get_tree().create_timer(0.2), "timeout")
 	get_tree().change_scene("res://UI/ChessDisplay.tscn")
 
 func _on_ControlsBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
 	show = not(show)
 	$Instructions.visible = show
 
 func _on_QuitBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
+	yield(get_tree().create_timer(0.5), "timeout")
 	get_tree().quit()
 
 

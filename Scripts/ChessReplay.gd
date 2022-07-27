@@ -479,16 +479,22 @@ func prev_move():
 
 # Buttons
 func _on_NextBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
+	yield(get_tree().create_timer(0.2), "timeout")
 	if counter < journal.size():
 		next_move()
 		counter = counter + 1
 
 func _on_PrevBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
+	yield(get_tree().create_timer(0.2), "timeout")
 	if counter > 0:
 		counter = counter - 1
 		prev_move()
 
 func _on_MineBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
+	yield(get_tree().create_timer(0.2), "timeout")
 	skull = not(skull)
 	show_mines(skull)
 

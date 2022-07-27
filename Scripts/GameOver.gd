@@ -16,8 +16,13 @@ func set_winner(white_won: bool):
 		$Background/Book.set_texture(book[1])
 
 func _on_HomeBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
+	yield(get_tree().create_timer(0.2), "timeout")
 	get_tree().paused = false
 	get_tree().change_scene("res://UI/MainMenu.tscn")
 
 func _on_ReplayBtn_pressed() -> void:
+	$AudioStreamPlayer.play()
+	yield(get_tree().create_timer(0.2), "timeout")
+	get_tree().paused = false
 	get_tree().change_scene("res://UI/ChessReplay.tscn")

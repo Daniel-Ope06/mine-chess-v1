@@ -1,8 +1,5 @@
 extends Node2D
 
-# TO DO
-## Replay system
-
 # Mouse cursors
 onready var mouse = $Sprites/MouseCursor
 const cursor = preload("res://Assets/Others/item_2_flip.png")
@@ -63,7 +60,7 @@ var offset = 32
 # Click variables
 var first_click = Vector2(0,0)
 var final_click = Vector2(0,0)
-var pos; var target
+var pos: Vector2; var target: Vector2
 var selected_piece; var target_piece
 var selected_type; var target_type
 var controlling = false; var movement_occured = false
@@ -149,34 +146,34 @@ func build_2D_array():
 	var array = []
 	for i in range(8):
 		array.append([])
-		for j in range(8):
+		for _j in range(8):
 			array[i].append(null)
 	return array
 
-func grid_to_pixel(pos):
-	var new_x = x_start + (offset * pos.x)
-	var new_y = y_start + (-offset * pos.y)
-	return Vector2(new_x, new_y)
+func grid_to_pixel(grid_pos: Vector2):
+	var pixel_x = x_start + (offset * grid_pos.x)
+	var pixel_y = y_start + (-offset * grid_pos.y)
+	return Vector2(pixel_x, pixel_y)
 
-func pixel_to_grid(pixel):
-	var new_x = round((pixel.x - x_start) / offset)
-	var new_y = round((pixel.y - y_start) / -offset)
-	return Vector2(new_x, new_y)
+func pixel_to_grid(pixel_pos: Vector2):
+	var grid_x = round((pixel_pos.x - x_start) / offset)
+	var grid_y = round((pixel_pos.y - y_start) / -offset)
+	return Vector2(grid_x, grid_y)
 
-func inside_grid(pos):
-	if pos.x >= 0 and pos.x <= 7:
-		if pos.y >= 0 and pos.y <= 7:
+func inside_grid(grid_pos: Vector2):
+	if grid_pos.x >= 0 and grid_pos.x <= 7:
+		if grid_pos.y >= 0 and grid_pos.y <= 7:
 			return true
 	return false
 
 
 # Spawn Pieces
-func spawn_piece(n, type, pos):
+func spawn_piece(n: int, type: String, grid_pos: Vector2):
 	var piece = chess_pieces[n].instance()
 	$ChessPieces.add_child(piece)
-	piece.position = grid_to_pixel(pos)
-	piece_object[pos.x][pos.y] = piece
-	piece_type[pos.x][pos.y] = type
+	piece.position = grid_to_pixel(grid_pos)
+	piece_object[grid_pos.x][grid_pos.y] = piece
+	piece_type[grid_pos.x][grid_pos.y] = type
 
 func spawn_black_pieces():
 	var black = ['B_ROOK', 'B_KNIGHT', 'B_BISHOP']
@@ -206,26 +203,26 @@ func spawn_white_pieces():
 	spawn_piece(10, 'W_KING', Vector2(4,0))
 	spawn_piece(11, 'W_QUEEN', Vector2(3,0))
 
-func spawn_notation(frame: int, pixel_position: Vector2):
+func spawn_notation(frame: int, pixel_pos: Vector2):
 	var symbol= chess_notation.instance()
 	$Sprites/Notation.add_child(symbol)
-	symbol.position = pixel_position
+	symbol.position = pixel_pos
 	symbol.frame = frame
 
 func spawn_letters():
-	var pos = Vector2(-112, 140)
+	var pixel_pos = Vector2(-112, 140)
 	for i in range(8):
-		spawn_notation(i, pos)
-		pos = pos + Vector2(32,0)
+		spawn_notation(i, pixel_pos)
+		pixel_pos = pixel_pos + Vector2(32,0)
 
 func spawn_numbers():
-	var pos = Vector2(-138, 112)
+	var pixel_pos = Vector2(-138, 112)
 	for i in range(26,34):
-		spawn_notation(i, pos)
-		pos = pos + Vector2(0,-32)
+		spawn_notation(i, pixel_pos)
+		pixel_pos = pixel_pos + Vector2(0,-32)
 
 # Build tiles
-func build_tileset(type, set):
+func build_tileset(type, set: Array):
 	for i in range(8):
 		for j in range(8):
 			var square = type.instance()
@@ -233,7 +230,7 @@ func build_tileset(type, set):
 			square.position = grid_to_pixel(Vector2(i,j))
 			set[i][j] = square
 
-func hide_tileset(set):
+func hide_tileset(set: Array):
 	for i in range(8):
 		for j in range(8):
 			set[i][j].hide()
@@ -301,32 +298,43 @@ func piece_path(selected_type, selected_piece, pos):
 		pawn_path(selected_type, pos)
 		
 		if selected_type == 'W_KNIGHT' and white_turn:
+			$Audio/ClickAudio.play()
 			knight_path(selected_type, pos)
 		if selected_type == 'B_KNIGHT' and not(white_turn):
+			$Audio/ClickAudio.play()
 			knight_path(selected_type, pos)
 		
 		if selected_type == 'W_BISHOP' and white_turn:
+			$Audio/ClickAudio.play()
 			bishop_path(selected_type, pos)
 		if selected_type == 'B_BISHOP' and not(white_turn):
+			$Audio/ClickAudio.play()
 			bishop_path(selected_type, pos)
 			
 		if selected_type == 'W_ROOK' and white_turn:
+			$Audio/ClickAudio.play()
 			rook_path(selected_type, pos)
 		if selected_type == 'B_ROOK' and not(white_turn):
+			$Audio/ClickAudio.play()
 			rook_path(selected_type, pos)
 			
 		if selected_type == 'W_QUEEN' and white_turn:
+			$Audio/ClickAudio.play()
 			queen_path(selected_type, pos)
 		if selected_type == 'B_QUEEN' and not(white_turn):
+			$Audio/ClickAudio.play()
 			queen_path(selected_type, pos)
 			
 		if selected_type == 'W_KING' and white_turn:
+			$Audio/ClickAudio.play()
 			king_path(selected_type, pos)
 		if selected_type == 'B_KING' and not(white_turn):
+			$Audio/ClickAudio.play()
 			king_path(selected_type, pos)
 
 func pawn_path(selected_type, pos):
 	if selected_type == 'W_PAWN' and white_turn:
+		$Audio/ClickAudio.play()
 		# move path
 		if pos.y == 1:
 			if piece_object[pos.x][pos.y+1] == null:
@@ -351,6 +359,7 @@ func pawn_path(selected_type, pos):
 					tileset[pos.x+1][pos.y+1].show()
 	
 	if selected_type == 'B_PAWN' and not(white_turn):
+		$Audio/ClickAudio.play()
 		# move path
 		if pos.y == 6:
 			if piece_object[pos.x][pos.y-1] == null:
@@ -490,6 +499,7 @@ func update_array(selected_type, selected_piece, pos, target):
 func move_piece(selected_type, selected_piece, pos, target):
 	update_array(selected_type, selected_piece, pos, target)
 	if is_valid():
+		$Audio/ClickAudio.play()
 		selected_piece.animate(grid_to_pixel(target))
 		promotion_popup(selected_type, target)
 		movement_occured = true
@@ -497,6 +507,7 @@ func move_piece(selected_type, selected_piece, pos, target):
 		update_array(selected_type, selected_piece, target, pos)
 
 func kill_enemy(selected_type, selected_piece, target_piece, pos, target):
+	$Audio/ClickAudio.play()
 	update_array(selected_type, selected_piece, pos, target)
 	target_piece.queue_free()
 	selected_piece.animate(grid_to_pixel(target))
@@ -505,6 +516,7 @@ func kill_enemy(selected_type, selected_piece, target_piece, pos, target):
 func stepped_on_mine(target, selected_piece, selected_type):
 	if selected_piece.get_color() == Color(1,1,1,1):
 		yield(get_tree().create_timer(0.6), "timeout")
+		$Audio/ExplosionAudio.play()
 		selected_piece.explode()
 		yield(get_tree().create_timer(1.0), "timeout")
 		selected_piece.queue_free()
@@ -513,6 +525,7 @@ func stepped_on_mine(target, selected_piece, selected_type):
 	
 	if selected_piece.get_color() == shield_color:
 		yield(get_tree().create_timer(0.6), "timeout")
+		$Audio/ExplosionAudio.play()
 		selected_piece.explode()
 		yield(get_tree().create_timer(1.0), "timeout")
 		piece_type[target.x][target.y] = selected_type
@@ -778,6 +791,7 @@ func display_CheckAndCheckmate():
 	
 	if in_check(king_pos, turn) and in_checkmate(king_pos, turn):
 		shieldset[king_pos.x][king_pos.y].show()
+		save_replay()
 		$PauseMenu.set_process_unhandled_input(false)
 		if journal[-1] != '#':
 			journal.append('#')
@@ -921,6 +935,7 @@ func place_mine():
 		var mine_pos = pixel_to_grid(mine_click)
 		
 		if inside_grid(mine_pos) and (piece_type[mine_pos.x][mine_pos.y] == null):
+			$Audio/ClickAudio.play()
 			hide_tileset(mineset)
 			mineset[mine_pos.x][mine_pos.y].show()
 		else:
@@ -940,6 +955,7 @@ func set_mine():
 		
 		if inside_grid(mine_pos) and mine > 0:
 			if mineset[mine_pos.x][mine_pos.y].visible == true:
+				$Audio/ClickAudio.play()
 				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 				hide_tileset(mineset)
 				piece_type[mine_pos.x][mine_pos.y] = 'MINE'
@@ -962,6 +978,7 @@ func place_shield():
 		var shield_pos = pixel_to_grid(shield_click)
 		
 		if inside_grid(shield_pos) and (piece_object[shield_pos.x][shield_pos.y] != null):
+			$Audio/ClickAudio.play()
 			if white_turn == true and "W_" in piece_type[shield_pos.x][shield_pos.y]:
 				hide_tileset(shieldset)
 				shieldset[shield_pos.x][shield_pos.y].show()
@@ -985,6 +1002,7 @@ func set_shield():
 		
 		if inside_grid(shield_pos) and shield > 0:
 			if shieldset[shield_pos.x][shield_pos.y].visible == true:
+				$Audio/ClickAudio.play()
 				mouse.switch_cursor(cursor, Vector2(1,1), Vector2(-7, -7))
 				hide_tileset(shieldset)
 				piece_object[shield_pos.x][shield_pos.y].show_shield()
@@ -1116,6 +1134,7 @@ func update_numbers():
 # Buttons
 ## Promotionn Buttons
 func _on_W_QueenBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][7])
@@ -1124,6 +1143,7 @@ func _on_W_QueenBtn_pressed() -> void:
 	$PawnPromotion.hide()
 
 func _on_W_KnightBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][7])
@@ -1132,6 +1152,7 @@ func _on_W_KnightBtn_pressed() -> void:
 	$PawnPromotion.hide()
 
 func _on_W_RookBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][7])
@@ -1140,6 +1161,7 @@ func _on_W_RookBtn_pressed() -> void:
 	$PawnPromotion.hide()
 
 func _on_W_BishopBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][7])
@@ -1148,6 +1170,7 @@ func _on_W_BishopBtn_pressed() -> void:
 	$PawnPromotion.hide()
 
 func _on_B_QueenBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][0])
@@ -1156,6 +1179,7 @@ func _on_B_QueenBtn_pressed() -> void:
 	$PawnPromotion.hide()
 
 func _on_B_KnightBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][0])
@@ -1164,6 +1188,7 @@ func _on_B_KnightBtn_pressed() -> void:
 	$PawnPromotion.hide()
 
 func _on_B_RookBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][0])
@@ -1172,6 +1197,7 @@ func _on_B_RookBtn_pressed() -> void:
 	$PawnPromotion.hide()
 
 func _on_B_BishopBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	var last_row = []; var target = Vector2(0,0)
 	for i in range(8):
 		last_row.append(piece_type[i][0])
@@ -1182,26 +1208,34 @@ func _on_B_BishopBtn_pressed() -> void:
 
 ## Mine & Gold Buttons
 func _on_BlackBookBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	pop_up_books = not(pop_up_books)
 
 func _on_WhiteBookBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	pop_up_books = not(pop_up_books)
 
 func _on_MineBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	mouse.switch_cursor(mine_cursor, Vector2(1,1), Vector2(-16,-16))
 
 func _on_ShieldBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	mouse.switch_cursor(shield_cursor, Vector2(0.6,0.6), Vector2(-16, -16))
 
 func _on_RightMineBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	arrow_action = '+MINE'
 
 func _on_LeftMineBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	arrow_action = '-MINE'
 
 func _on_RightShieldBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	arrow_action = '+SHIELD'
 
 func _on_LeftShieldBtn_pressed() -> void:
+	$Audio/ClickAudio.play()
 	arrow_action = '-SHIELD'
 

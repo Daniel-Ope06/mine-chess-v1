@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://Assets/Board & Notation/Board_Xtra_6.png" type="Texture" id=1]
 [ext_resource path="res://Assets/Others/frame01.png" type="Texture" id=2]
@@ -22,6 +22,8 @@
 [ext_resource path="res://Assets/Others/right_btn.png" type="Texture" id=20]
 [ext_resource path="res://Assets/Transition Pics/Chess-Monochrome.jpg" type="Texture" id=21]
 [ext_resource path="res://UI/GameOver.tscn" type="PackedScene" id=22]
+[ext_resource path="res://Assets/Audio/tap-on-shoulder.wav" type="AudioStream" id=23]
+[ext_resource path="res://Assets/Audio/explosion-8-bit-01.wav" type="AudioStream" id=24]
 [ext_resource path="res://UI/PauseMenu.tscn" type="PackedScene" id=26]
 
 [sub_resource type="DynamicFont" id=1]
@@ -309,6 +311,16 @@ scale = Vector2( 0.3, 0.3 )
 z_index = 100
 
 [node name="ChessPieces" type="Node2D" parent="."]
+
+[node name="Audio" type="Node2D" parent="."]
+
+[node name="ClickAudio" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource( 23 )
+volume_db = 5.0
+
+[node name="ExplosionAudio" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource( 24 )
+volume_db = -5.0
 
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_QueenBtn" to="." method="_on_W_QueenBtn_pressed"]
 [connection signal="pressed" from="PawnPromotion/PopUp/WhiteButtons/W_KnightBtn" to="." method="_on_W_KnightBtn_pressed"]

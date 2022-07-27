@@ -22,6 +22,9 @@ func switch_texture(mat):
 func show_shield():
 	sprite.modulate = Color(0.878431, 0.733333, 0.388235, 1)
 
+func remove_shield():
+	sprite.modulate = Color(1,1,1,1)
+
 func get_color():
 	return sprite.modulate
 

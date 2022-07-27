@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Assets/Others/frame01.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/GameOver.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Menu/Buttons/replay_1.png" type="Texture" id=3]
 [ext_resource path="res://Assets/Menu/Buttons/replay_0.png" type="Texture" id=4]
+[ext_resource path="res://Assets/Audio/tap-on-shoulder.wav" type="AudioStream" id=5]
 [ext_resource path="res://Assets/Others/book_brown.png" type="Texture" id=6]
 [ext_resource path="res://Assets/Menu/Buttons/Home_0.png" type="Texture" id=9]
 [ext_resource path="res://Assets/Menu/Buttons/Home_1.png" type="Texture" id=10]
@@ -62,6 +63,9 @@ texture_hover = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
 
 [connection signal="pressed" from="Background/Buttons/HomeBtn" to="." method="_on_HomeBtn_pressed"]
 [connection signal="pressed" from="Background/Buttons/ReplayBtn" to="." method="_on_ReplayBtn_pressed"]
