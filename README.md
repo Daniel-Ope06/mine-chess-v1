@@ -19,6 +19,3 @@
 
 ## Chessboard
 ![UI-Board](https://user-images.githubusercontent.com/97707320/159796775-405811eb-ed1d-4cfb-bf8a-b8344497169a.png)
-
-# TO DO
-- Sound design
