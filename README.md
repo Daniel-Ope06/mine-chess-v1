@@ -1,3 +1,6 @@
+# Description
+Discover a thrilling twist on traditional chess in Mines Chess. This captivating variation introduces mines and shields, enabling you to strategically set traps for your opponent while safeguarding your prized pieces. Unleash your tactical prowess and explore the intriguing gameplay possibilities. Visit the game's itch page for further details and embark on an exciting chess experience unlike any other.
+
 # Gameplay
 ## Mine Example
 ![UI-mine](https://user-images.githubusercontent.com/97707320/159814033-80fdc64b-f6f2-45ab-8069-54a2213c6cb7.gif)
